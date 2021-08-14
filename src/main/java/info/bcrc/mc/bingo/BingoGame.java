@@ -1,10 +1,12 @@
 package info.bcrc.mc.bingo;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -31,7 +33,7 @@ public class BingoGame {
             return;
 
         player_team.put(player, team);
-        players_maps.put(player, new BingoMap(bingoMapCreator.returnDefaultMap()));
+        players_maps.put(player, new BingoMap(player, bingoMapCreator.returnDefaultMap()));
 
         player.sendMessage(ChatColor.valueOf(team) + "[Bingo] You have joined as " + team + " team");
     }
@@ -62,11 +64,14 @@ public class BingoGame {
 
         if (shareInventory) {
             for (BingoMap m : players_maps.values()) {
-                m.playerGetItem(player, item, player_team.get(player));
+                m.playerGetItem(item, player_team.get(player));
             }
         } else {
-            map.playerGetItem(player, item, player_team.get(player));
+            map.playerGetItem(item, player_team.get(player));
         }
+
+        getPlayers().forEach(inGamePlayers -> inGamePlayers.sendMessage(
+                "[Bingo] " + player.getName() + " has achieved [" + item.getType().getKey().getKey() + "]"));
 
         if (collectAll && map.testAllCollected()) {
             playerFinishBingo(player);
@@ -90,6 +95,30 @@ public class BingoGame {
             }
             gameState = BingoGameState.END;
         }
+    }
+
+    protected boolean isInventoryBingoMap(Inventory inventory) {
+        for (BingoMap m : players_maps.values())
+            if (m.getInventory().equals(inventory))
+                return true;
+
+        return false;
+    }
+
+    protected boolean isItemTarget(Player player, ItemStack item) {
+        return players_maps.get(player).getInventory().contains(item);
+    }
+
+    protected Set<Player> getPlayers() {
+        return players_maps.keySet();
+    }
+
+    protected void openBingoMap(Player player) {
+        players_maps.get(player).openBingoMap();
+    }
+
+    protected BingoGameState getGameState() {
+        return gameState;
     }
 
     private HashMap<Player, BingoMap> players_maps = new HashMap<>();

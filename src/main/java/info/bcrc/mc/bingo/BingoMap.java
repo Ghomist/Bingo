@@ -7,13 +7,18 @@ import org.bukkit.inventory.ItemStack;
 
 public class BingoMap {
 
-    protected BingoMap(Inventory inventory) {
+    protected BingoMap(Player owner, Inventory inventory) {
+        this.owner = owner;
         this.inventory = inventory;
     }
 
-    protected void playerGetItem(Player player, ItemStack item, String team) {
+    protected void openBingoMap() {
+        owner.openInventory(inventory);
+    }
+
+    protected void playerGetItem(ItemStack item, String team) {
         inventory.setItem(inventory.first(item), new ItemStack(Material.valueOf(team.toUpperCase() + "_WOOL")));
-        player.sendMessage("[Bingo] You have finished " + item.getType().getKey().getKey());
+        owner.sendMessage("[Bingo] You have finished " + item.getType().getKey().getKey());
         collectedCount++;
     }
 
@@ -53,6 +58,7 @@ public class BingoMap {
         return inventory;
     }
 
+    private Player owner;
     private Inventory inventory;
     private int collectedCount = 0;
 
