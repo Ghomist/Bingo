@@ -8,6 +8,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 
 public class BingoCommander implements CommandExecutor, TabCompleter {
 
@@ -22,12 +23,23 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                 if (args.length >= 1) {
                     switch (args[0]) {
                         case "setup":
-                            // if (args.length == 2)
-                            // plugin.bingoGame = new BingoGame(plugin, args[2]);
-                            // else
-                            // badInput(sender);
+                            boolean allcollect = false;
+                            if (Arrays.asList(args).contains("allcollect"))
+                                allcollect = true;
+
+                            boolean shareInventory = false;
+                            if (Arrays.asList(args).contains("shareInventory"))
+                                shareInventory = true;
+
+                            plugin.bingoGame = new BingoGame(plugin, allcollect, shareInventory);
                             break;
+
+                        case "join":
+                            plugin.bingoGame.join((Player) sender, args[1]);
+                            break;
+
                         case "start":
+                            plugin.bingoGame.start();
                             break;
                         default:
                             badInput(sender);

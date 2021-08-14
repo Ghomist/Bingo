@@ -49,6 +49,10 @@ public class BingoGame {
         players_maps.put(player, new BingoMap(bingoMapCreator.returnDefaultMap()));
     }
 
+    protected void start() {
+
+    }
+
     protected void playerGetItem(Player player, ItemStack item) {
         if (!gameState.equals(BingoGameState.START))
             return;
