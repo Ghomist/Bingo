@@ -46,6 +46,9 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                             plugin.bingoGame.playerFinishBingo(null);
                             break;
 
+                        case "playerlist":
+                            plugin.bingoGame.printPlayerList((Player) sender);
+
                         default:
                             badInput(sender);
                     }
@@ -58,12 +61,12 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
         return false;
     }
 
-    private List<String> baseCommands = Arrays.asList("setup", "join", "start");
+    private List<String> baseCommands = Arrays.asList("setup", "join", "start", "playerlist", "shutdown");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (command.getName().equals("bingo")) {
-            if (args.length > 0) {
+            if (args.length > 1) {
                 switch (args[0]) {
                     case "setup":
                         return Arrays.asList("allcollect", "shareinventory");

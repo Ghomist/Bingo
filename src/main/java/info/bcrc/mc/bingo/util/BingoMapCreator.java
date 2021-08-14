@@ -20,7 +20,7 @@ public class BingoMapCreator {
 
         // generate default map
         Random random = new Random();
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < 5; i++) {
             for (int j = 0; j < 2; j++)
                 defaultMap.setItem(9 * i + j, air);
 

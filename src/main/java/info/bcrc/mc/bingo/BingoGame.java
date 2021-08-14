@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Set;
 
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -25,6 +26,8 @@ public class BingoGame {
         this.shareInventory = shareInventory;
 
         bingoMapCreator = new BingoMapCreator(plugin);
+
+        plugin.getServer().getOnlinePlayers().forEach(p -> p.sendMessage("[Bingo] A bingo game has been set up"));
         gameState = BingoGameState.SETUP;
     }
 
@@ -35,11 +38,22 @@ public class BingoGame {
         player_team.put(player, team);
         players_maps.put(player, new BingoMap(player, bingoMapCreator.returnDefaultMap()));
 
-        player.sendMessage(ChatColor.valueOf(team) + "[Bingo] You have joined as " + team + " team");
+        sendMessageToAll(ChatColor.valueOf(team.toUpperCase()) + "[Bingo] " + player.getName() + " have joined as "
+                + team + " team");
+    }
+
+    protected void printPlayerList(Player player) {
+        if (gameState.equals(BingoGameState.END))
+            return;
+
+        getPlayers().forEach(p -> {
+            player.sendMessage(ChatColor.valueOf(player_team.get(p).toUpperCase()) + p.getName());
+        });
+        player.sendMessage(getPlayers().size() + " players joined the game in total");
     }
 
     protected void start(Player sponsor) {
-        for (Player p : players_maps.keySet()) {
+        getPlayers().forEach(p -> {
             for (PotionEffect effect : p.getActivePotionEffects()) {
                 p.removePotionEffect(effect.getType());
             }
@@ -47,12 +61,17 @@ public class BingoGame {
             p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
             p.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 999999, 255, false, false));
 
+            p.getInventory().clear();
             p.getInventory().setItem(8, new ItemStack(Material.NETHER_STAR));
 
             RandomTpPlayer.randomTpPlayer(p);
+            p.setBedSpawnLocation(p.getLocation(), true);
+
+            p.setGameMode(GameMode.SURVIVAL);
 
             p.sendMessage("[Bingo] The game has been started");
-        }
+        });
+        gameState = BingoGameState.START;
     }
 
     protected void playerGetItem(Player player, ItemStack item) {
@@ -70,8 +89,7 @@ public class BingoGame {
             map.playerGetItem(item, player_team.get(player));
         }
 
-        getPlayers().forEach(inGamePlayers -> inGamePlayers.sendMessage(
-                "[Bingo] " + player.getName() + " has achieved [" + item.getType().getKey().getKey() + "]"));
+        sendMessageToAll("[Bingo] " + player.getName() + " has achieved [" + item.getType().getKey().getKey() + "]");
 
         if (collectAll && map.testAllCollected()) {
             playerFinishBingo(player);
@@ -90,10 +108,10 @@ public class BingoGame {
             return;
 
         if (player == null) {
-            for (Player p : players_maps.keySet()) {
-                p.sendMessage(ChatColor.RED + "[Bingo] The game had been shut up forcibly");
-            }
+            sendMessageToAll(ChatColor.RED + "[Bingo] The game had been shut up forcibly");
             gameState = BingoGameState.END;
+        } else {
+            sendMessageToAll(ChatColor.YELLOW + "[Bingo] " + player.getName() + " has finished the bingo");
         }
     }
 
@@ -109,8 +127,16 @@ public class BingoGame {
         return players_maps.get(player).getInventory().contains(item);
     }
 
+    protected boolean isStarted() {
+        return gameState.equals(BingoGameState.START);
+    }
+
     protected Set<Player> getPlayers() {
         return players_maps.keySet();
+    }
+
+    protected void sendMessageToAll(String msg) {
+        getPlayers().forEach(p -> p.sendMessage(msg));
     }
 
     protected void openBingoMap(Player player) {
