@@ -22,10 +22,10 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                 if (args.length >= 1) {
                     switch (args[0]) {
                         case "setup":
-                            if (args.length == 2)
-                                plugin.bingoGame = new BingoGame(plugin, args[2]);
-                            else
-                                badInput(sender);
+                            // if (args.length == 2)
+                            // plugin.bingoGame = new BingoGame(plugin, args[2]);
+                            // else
+                            // badInput(sender);
                             break;
                         case "start":
                             break;
@@ -52,7 +52,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
             } else {
                 if (args.length == 1) {
                     if (args[1].equals("setup")) {
-                        return Arrays.asList("allcollect", "normal", "race");
+                        return Arrays.asList("allcollect", "normal");
                     } else {
                         return baseCommands;
                     }
