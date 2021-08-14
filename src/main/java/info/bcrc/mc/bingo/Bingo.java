@@ -17,6 +17,8 @@ public class Bingo extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+
         server = getServer();
         logger = getLogger();
 
@@ -24,6 +26,7 @@ public class Bingo extends JavaPlugin {
 
         getCommand("bingo").setExecutor(cmd);
 
+        getConfig();
     }
 
     @Override
