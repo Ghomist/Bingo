@@ -1,0 +1,11 @@
+name: bingo
+version: "1.0-SNAPSHOT"
+author: Ghomist
+main: info.bcrc.mc.bingo.Bingo
+api-version: 1.17
+commands:
+  bingo:
+    description: control bingo
+    usage:
+    permission: project.permission
+    permission-message: You don't have <project.permission>
