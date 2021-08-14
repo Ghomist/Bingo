@@ -1,6 +1,6 @@
 # a list of all allowed items
 item-list:
-  - AIR
+  # AIR
   - STONE
   - GRANITE
   - POLISHED_GRANITE

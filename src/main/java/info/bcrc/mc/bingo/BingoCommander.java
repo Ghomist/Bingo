@@ -3,6 +3,7 @@ package info.bcrc.mc.bingo;
 import java.util.Arrays;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -10,28 +11,32 @@ import org.bukkit.command.TabCompleter;
 
 public class BingoCommander implements CommandExecutor, TabCompleter {
 
-    protected Bingo plugin;
-
     public BingoCommander(Bingo plugin) {
         this.plugin = plugin;
     }
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if (command.getName().equals("bingo")) {
-            if (args[0].equals("setup")) {
-                if (args.length == 2) {
-                    if (args[1].equals("normal")) {
-                        plugin.inGame = new BingoInGame(plugin);
-                    } else if (args[1].equals("allcollect")) {
-
+        try {
+            if (command.getName().equals("bingo")) {
+                if (args.length >= 1) {
+                    switch (args[0]) {
+                        case "setup":
+                            if (args.length == 2)
+                                plugin.bingoGame = new BingoGame(plugin, args[2]);
+                            else
+                                badInput(sender);
+                            break;
+                        case "start":
+                            break;
+                        default:
+                            badInput(sender);
                     }
-
                 }
-
-            } else if (args[0].equals("start")) {
-
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            badInput(sender);
         }
         return false;
     }
@@ -58,5 +63,11 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
         }
         return null;
     }
+
+    private void badInput(CommandSender sender) {
+        sender.sendMessage(ChatColor.RED + "[Bingo]: Bad Input");
+    }
+
+    private Bingo plugin;
 
 }

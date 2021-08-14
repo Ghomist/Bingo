@@ -13,7 +13,7 @@ public class Bingo extends JavaPlugin {
     protected BingoListener lsn = new BingoListener(this);
     protected BingoCommander cmd = new BingoCommander(this);
 
-    protected BingoInGame inGame;
+    protected BingoGame bingoGame;
 
     @Override
     public void onEnable() {
