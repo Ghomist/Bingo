@@ -28,7 +28,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                                 allcollect = true;
 
                             boolean shareInventory = false;
-                            if (Arrays.asList(args).contains("shareInventory"))
+                            if (Arrays.asList(args).contains("shareinventory"))
                                 shareInventory = true;
 
                             plugin.bingoGame = new BingoGame(plugin, allcollect, shareInventory);
@@ -39,8 +39,13 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                             break;
 
                         case "start":
-                            plugin.bingoGame.start();
+                            plugin.bingoGame.start((Player) sender);
                             break;
+
+                        case "shutdown":
+                            plugin.bingoGame.playerFinishBingo(null);
+                            break;
+
                         default:
                             badInput(sender);
                     }
@@ -53,26 +58,27 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
         return false;
     }
 
-    private List<String> baseCommands = Arrays.asList("setup", "start");
+    private List<String> baseCommands = Arrays.asList("setup", "join", "start");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-
         if (command.getName().equals("bingo")) {
-            if (args.length < 1) {
-                return baseCommands;
-            } else {
-                if (args.length == 1) {
-                    if (args[1].equals("setup")) {
-                        return Arrays.asList("allcollect", "normal");
-                    } else {
-                        return baseCommands;
-                    }
-                } else if (args.length == 2) {
-                    return null;
+            if (args.length > 0) {
+                switch (args[0]) {
+                    case "setup":
+                        return Arrays.asList("allcollect", "shareinventory");
+                    case "join":
+                        return Arrays.asList("red", "yellow", "blue", "green");
+                    case "start":
+                        return null;
+                    default:
+                        return null;
                 }
+            } else {
+                return baseCommands;
             }
         }
+
         return null;
     }
 
