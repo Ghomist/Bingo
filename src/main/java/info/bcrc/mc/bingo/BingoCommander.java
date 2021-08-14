@@ -12,7 +12,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
 
     protected Bingo plugin;
 
-    protected BingoCommander(Bingo plugin) {
+    public BingoCommander(Bingo plugin) {
         this.plugin = plugin;
     }
 
