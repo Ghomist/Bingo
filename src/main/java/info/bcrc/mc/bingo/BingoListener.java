@@ -12,6 +12,8 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
@@ -96,7 +98,20 @@ public class BingoListener implements Listener {
 
     @EventHandler
     public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
-        event.getPlayer().addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
+        Player player = event.getPlayer();
+        if (plugin.bingoGame.getPlayers().contains(player)) {
+            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
+        }
+    }
+
+    @EventHandler
+    public void on(PlayerJoinEvent event) {
+
+    }
+
+    @EventHandler
+    public void on(PlayerQuitEvent event) {
+
     }
 
 }

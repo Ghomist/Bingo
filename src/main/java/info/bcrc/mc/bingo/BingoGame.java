@@ -5,12 +5,14 @@ import java.util.Set;
 
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
+import org.bukkit.GameRule;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 
@@ -76,7 +78,11 @@ public class BingoGame {
             p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
 
             p.getInventory().clear();
-            p.getInventory().setItem(8, new ItemStack(Material.NETHER_STAR));
+            ItemStack item = new ItemStack(Material.NETHER_STAR);
+            ItemMeta meta = item.getItemMeta();
+            meta.setDisplayName("Bingo card");
+            item.setItemMeta(meta);
+            p.getInventory().setItem(8, item);
 
             RandomTpPlayer.randomTpPlayer(p);
             p.setBedSpawnLocation(p.getLocation(), true);
@@ -87,6 +93,8 @@ public class BingoGame {
 
             p.sendMessage("[Bingo] The game has been started");
         });
+        sponsor.getWorld().setGameRule(GameRule.KEEP_INVENTORY, true);
+
         gameState = BingoGameState.START;
     }
 
