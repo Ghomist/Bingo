@@ -1,11 +1,20 @@
-name: bingo
+name: BingoForMinecraft
 version: "1.0-SNAPSHOT"
 author: Ghomist
 main: info.bcrc.mc.bingo.Bingo
 api-version: 1.17
+description: A bingo game plugin in Minecraft! Have fun!
 commands:
   bingo:
     description: control bingo
-    usage:
+    usage: |
+      [Command] /bingo [setup|join|start|shutdown|playerlist]
+      /bingo: show information about this plugin
+      /bingo setup [allcollect|shareinventory]: start a bingo in input mode(s)
+      /bingo join [red|yellow|blue|green]: join the bingo after starting, as input team
+      /bingo start: start the bingo
+      /bingo shutdown: end the game forcibly
+      /bingo playerlist: show the players joined the bingo
+      /bingo help: show help
     permission: project.permission
     permission-message: You don't have <project.permission>

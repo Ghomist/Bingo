@@ -5,7 +5,11 @@ import java.util.logging.Logger;
 import org.bukkit.Server;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import info.bcrc.mc.bingo.util.ConfigHandler;
+
 public class Bingo extends JavaPlugin {
+
+    protected ConfigHandler configHandler;
 
     protected Server server;
     protected Logger logger;
@@ -18,6 +22,8 @@ public class Bingo extends JavaPlugin {
     @Override
     public void onEnable() {
         saveDefaultConfig();
+
+        configHandler = new ConfigHandler(this);
 
         server = getServer();
         logger = getLogger();
@@ -32,5 +38,9 @@ public class Bingo extends JavaPlugin {
     @Override
     public void onDisable() {
 
+    }
+
+    public ConfigHandler getConfigHandler() {
+        return configHandler;
     }
 }

@@ -12,7 +12,8 @@ import info.bcrc.mc.bingo.Bingo;
 public class BingoMapCreator {
 
     public BingoMapCreator(Bingo plugin) {
-        configHandler = new ConfigHandler(plugin.getConfig());
+        this.configHandler = plugin.getConfigHandler();
+
         defaultMap = plugin.getServer().createInventory(null, 45);
 
         List<ItemStack> itemList = configHandler.returnItemList();

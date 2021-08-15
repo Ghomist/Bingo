@@ -4,6 +4,9 @@ import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
+
+import net.md_5.bungee.api.ChatColor;
 
 public class BingoMap {
 
@@ -16,14 +19,25 @@ public class BingoMap {
         owner.openInventory(inventory);
     }
 
-    protected void playerGetItem(ItemStack item, String team) {
-        inventory.setItem(inventory.first(item), new ItemStack(Material.valueOf(team.toUpperCase() + "_WOOL")));
+    protected void playerGetItem(Player player, ItemStack item, String team) {
+        ItemStack replacement = new ItemStack(Material.valueOf(team.toUpperCase() + "_STAINED_GLASS_PANE"));
+        // replacement.addUnsafeEnchantment(Enchantment.LUCK, 1);
+        ItemMeta meta = replacement.getItemMeta();
+        meta.setDisplayName(ChatColor.of(team.toUpperCase()) + player.getName() + " obtained");
+        replacement.setItemMeta(meta);
+
+        inventory.setItem(inventory.first(item), replacement);
         owner.sendMessage("[Bingo] You have finished " + item.getType().getKey().getKey());
         collectedCount++;
     }
 
     protected boolean testCross(int index) {
-        Material current = inventory.getItem(index).getType();
+        Material current;
+        try {
+            current = inventory.getItem(index).getType();
+        } catch (NullPointerException e) {
+            current = Material.AIR;
+        }
 
         boolean line = true;
         int x = index / 9 * 9 + 2;

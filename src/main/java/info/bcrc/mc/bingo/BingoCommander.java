@@ -19,19 +19,21 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try {
-            if (command.getName().equals("bingo")) {
+            if (command.getName().equalsIgnoreCase("bingo")) {
                 if (args.length >= 1) {
                     switch (args[0]) {
                         case "setup":
-                            boolean allcollect = false;
-                            if (Arrays.asList(args).contains("allcollect"))
-                                allcollect = true;
+                            if (args.length >= 1 && args.length <= 3) {
+                                boolean allcollect = false;
+                                if (Arrays.asList(args).contains("allcollect"))
+                                    allcollect = true;
 
-                            boolean shareInventory = false;
-                            if (Arrays.asList(args).contains("shareinventory"))
-                                shareInventory = true;
+                                boolean shareInventory = false;
+                                if (Arrays.asList(args).contains("shareinventory"))
+                                    shareInventory = true;
 
-                            plugin.bingoGame = new BingoGame(plugin, allcollect, shareInventory);
+                                plugin.bingoGame = new BingoGame(plugin, allcollect, shareInventory);
+                            }
                             break;
 
                         case "join":
@@ -48,24 +50,33 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
 
                         case "playerlist":
                             plugin.bingoGame.printPlayerList((Player) sender);
+                            break;
+
+                        case "help":
+                            sender.sendMessage(plugin.configHandler.returnBingoCommandUsage());
+                            break;
 
                         default:
                             badInput(sender);
+                            break;
                     }
+                } else {
+                    sender.sendMessage(plugin.configHandler.returnBingoInfo());
                 }
             }
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
             badInput(sender);
+            return false;
         }
-        return false;
     }
 
-    private List<String> baseCommands = Arrays.asList("setup", "join", "start", "playerlist", "shutdown");
+    private List<String> baseCommands = Arrays.asList("setup", "join", "start", "playerlist", "shutdown", "help");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-        if (command.getName().equals("bingo")) {
+        if (command.getName().equalsIgnoreCase("bingo") && args.length > 0) {
             if (args.length > 1) {
                 switch (args[0]) {
                     case "setup":
