@@ -23,11 +23,11 @@ public class BingoGame {
         SETUP, START, END
     }
 
-    protected BingoGame(Bingo plugin, boolean collectAll, boolean shareInventory) {
+    protected BingoGame(Bingo plugin, boolean collectAll, boolean shareInventory, String difficulty) {
         this.collectAll = collectAll;
         this.shareInventory = shareInventory;
 
-        bingoMapCreator = new BingoMapCreator(plugin);
+        bingoMapCreator = new BingoMapCreator(plugin, difficulty);
 
         plugin.getServer().getOnlinePlayers().forEach(p -> p.sendMessage("[Bingo] A bingo game has been set up"));
         gameState = BingoGameState.SETUP;

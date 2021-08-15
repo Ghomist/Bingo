@@ -11,12 +11,12 @@ import info.bcrc.mc.bingo.Bingo;
 
 public class BingoMapCreator {
 
-    public BingoMapCreator(Bingo plugin) {
+    public BingoMapCreator(Bingo plugin, String difficulty) {
         this.configHandler = plugin.getConfigHandler();
 
         defaultMap = plugin.getServer().createInventory(null, 45);
 
-        List<ItemStack> itemList = configHandler.returnItemList();
+        List<ItemStack> itemList = configHandler.returnItemList(difficulty);
         ItemStack air = new ItemStack(Material.AIR);
 
         // generate default map
