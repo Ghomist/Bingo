@@ -32,7 +32,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                                 if (Arrays.asList(args).contains("shareinventory"))
                                     shareInventory = true;
 
-                                plugin.bingoGame = new BingoGame(plugin, allcollect, shareInventory, args[1]);
+                                plugin.bingoGame = new BingoGame(plugin, allcollect, shareInventory);
                             } else {
                                 badInput(sender);
                             }
@@ -85,9 +85,10 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
             if (args.length > 1) {
                 switch (args[0]) {
                     case "setup":
-                        if (args.length == 2)
-                            return Arrays.asList("easy", "normal", "hard", "impossible");
-                        return Arrays.asList("allcollect", "shareinventory");
+                        // if (args.length == 2)
+                        // return Arrays.asList("easy", "normal", "hard", "impossible");
+                        if (args.length < 3)
+                            return Arrays.asList("allcollect", "shareinventory");
                     case "join":
                         if (args.length == 2)
                             return Arrays.asList("red", "yellow", "blue", "green");

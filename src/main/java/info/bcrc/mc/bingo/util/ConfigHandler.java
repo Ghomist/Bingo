@@ -12,36 +12,22 @@ import net.md_5.bungee.api.ChatColor;
 public class ConfigHandler {
 
     public ConfigHandler(Bingo plugin) {
-        plugin.getConfig().getStringList("item-list.easy")
-                .forEach(item -> easyList.add(new ItemStack(Material.valueOf(item))));
-        plugin.getConfig().getStringList("item-list.normal")
-                .forEach(item -> normalList.add(new ItemStack(Material.valueOf(item))));
-        plugin.getConfig().getStringList("item-list.hard")
-                .forEach(item -> hardList.add(new ItemStack(Material.valueOf(item))));
-        plugin.getConfig().getStringList("item-list.impossible")
-                .forEach(item -> impossibleList.add(new ItemStack(Material.valueOf(item))));
+        for (int i = 1; i <= 32; i++) {
+            List<ItemStack> items = new ArrayList<>();
+            plugin.getConfig().getStringList("item-list." + i)
+                    .forEach(str -> items.add(new ItemStack(Material.valueOf(str))));
+            itemList.add(items);
+        }
 
-        impossibleList.addAll(hardList);
-        hardList.addAll(normalList);
-        normalList.addAll(easyList);
         bingoInfo = plugin.getDescription().getName() + "\n" + plugin.getDescription().getAuthors();
 
-        commandUsage = ChatColor.GREEN + "[Bingo] Command usages:\n" + plugin.getCommand("bingo").getDescription();
+        commandUsage = ChatColor.GREEN + "[Bingo] Command usages:\n" + plugin.getCommand("bingo").getUsage();
     }
 
-    public List<ItemStack> returnItemList(String difficulty) {
-        switch (difficulty) {
-            case "easy":
-                return easyList;
-            case "normal":
-                return normalList;
-            case "hard":
-                return hardList;
-            case "impossible":
-                return impossibleList;
-            default:
-                return normalList;
-        }
+    // Material a = Material.WEEPING_VINES;
+
+    public List<List<ItemStack>> returnItemList() {
+        return itemList;
     }
 
     public String returnBingoInfo() {
@@ -52,10 +38,8 @@ public class ConfigHandler {
         return commandUsage;
     }
 
-    private List<ItemStack> easyList = new ArrayList<>();
-    private List<ItemStack> normalList = new ArrayList<>();
-    private List<ItemStack> hardList = new ArrayList<>();
-    private List<ItemStack> impossibleList = new ArrayList<>();
+    private List<List<ItemStack>> itemList = new ArrayList<>();
+
     private String bingoInfo = "";
     private String commandUsage = "";
 

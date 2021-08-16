@@ -40,22 +40,31 @@ public class BingoMap {
         }
 
         boolean line = true;
-        int x = index / 9 * 9 + 2;
-        for (int i = 0; i < 5; i++) {
-            if (!inventory.getItem(x).getType().equals(current))
-                line = false;
-            x += 1;
-        }
-
         boolean column = true;
+        boolean leftCaterCorner = true;
+        boolean rightCaterCorner = true;
+        int x = index / 9 * 9 + 2;
         int y = index % 9;
+        int left = 2;
+        int right = 6;
+
         for (int i = 0; i < 5; i++) {
-            if (!inventory.getItem(y).getType().equals(current))
+            if (line && !inventory.getItem(x).getType().equals(current))
+                line = false;
+            if (column && !inventory.getItem(y).getType().equals(current))
                 column = false;
+            if (leftCaterCorner && !inventory.getItem(left).getType().equals(current))
+                leftCaterCorner = false;
+            if (rightCaterCorner && !inventory.getItem(right).getType().equals(current))
+                rightCaterCorner = false;
+
+            x += 1;
             y += 9;
+            left += 10;
+            right += 8;
         }
 
-        return line || column;
+        return line || column || leftCaterCorner || rightCaterCorner;
     }
 
     protected boolean testAllCollected() {

@@ -21,5 +21,5 @@ public class RandomTpPlayer {
 
     }
 
-    private static int range = 2000000;
+    private static int range = 200000;
 }

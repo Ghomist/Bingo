@@ -105,13 +105,23 @@ public class BingoListener implements Listener {
     }
 
     @EventHandler
-    public void on(PlayerJoinEvent event) {
+    public void onPlayerJoinEvent(PlayerJoinEvent event) {
+        if (!plugin.bingoGame.isStarted())
+            return;
+
+        Player player = event.getPlayer();
+        plugin.bingoGame.getPlayers().forEach(p -> {
+            if (p.getName().equals(player.getName())) {
+                plugin.bingoGame.replacePlayer(p, player);
+            }
+        });
 
     }
 
     @EventHandler
     public void on(PlayerQuitEvent event) {
-
+        if (plugin.bingoGame.isStarted())
+            plugin.bingoGame.playerQuit(event.getPlayer());
     }
 
 }
