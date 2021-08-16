@@ -41,7 +41,7 @@ public class BingoGame {
     }
 
     protected void join(Player player, String team) {
-        if (gameState.equals(BingoGameState.START)) {
+        if (gameState.equals(BingoGameState.START) && !getPlayers().contains(player)) {
             rejoin(player);
         }
 
@@ -131,6 +131,7 @@ public class BingoGame {
             p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREWORK);
 
             // info
+            p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 1f, 1f);
             p.sendMessage("[Bingo] The game has been started");
         });
         sponsor.getWorld().setGameRule(GameRule.KEEP_INVENTORY, true);

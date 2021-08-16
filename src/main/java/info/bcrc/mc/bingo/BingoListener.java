@@ -36,10 +36,8 @@ public class BingoListener implements Listener {
         ItemStack item = event.getItem();
         Player player = event.getPlayer();
 
-        plugin.getLogger().info("onPlayerInteractEvent");
         if (item != null && plugin.bingoGame.isStarted() && item.getType().equals(Material.NETHER_STAR)) {
             event.setCancelled(true);
-            plugin.getLogger().info("openBingoCard");
             plugin.bingoGame.openBingoMap(player);
         }
     }
@@ -106,16 +104,14 @@ public class BingoListener implements Listener {
 
     @EventHandler
     public void onPlayerJoinEvent(PlayerJoinEvent event) {
-        if (!plugin.bingoGame.isStarted())
-            return;
-
-        Player player = event.getPlayer();
-        plugin.bingoGame.getPlayers().forEach(p -> {
-            if (p.getName().equals(player.getName())) {
-                plugin.bingoGame.replacePlayer(p, player);
-            }
-        });
-
+        if (plugin.bingoGame.isStarted()) {
+            Player player = event.getPlayer();
+            plugin.bingoGame.getPlayers().forEach(p -> {
+                if (p.getName().equals(player.getName())) {
+                    plugin.bingoGame.replacePlayer(p, player);
+                }
+            });
+        }
     }
 
     @EventHandler
