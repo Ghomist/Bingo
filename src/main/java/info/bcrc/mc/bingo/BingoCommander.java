@@ -31,6 +31,9 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                                 boolean shareInventory = false;
                                 if (Arrays.asList(args).contains("shareinventory"))
                                     shareInventory = true;
+                                if (shareInventory) {
+                                    plugin.logger.info("allcollect");
+                                }
 
                                 plugin.bingoGame = new BingoGame(plugin, allcollect, shareInventory);
                             } else {
@@ -46,7 +49,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                             break;
 
                         case "start":
-                            plugin.bingoGame.startGame((Player) sender);
+                            plugin.bingoGame.startGame(plugin, (Player) sender);
                             break;
 
                         case "shutdown":
@@ -59,6 +62,16 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
 
                         case "help":
                             sender.sendMessage(plugin.configHandler.returnBingoCommandUsage());
+                            break;
+
+                        case "check":
+                            if (args.length == 2) {
+                                Player sponsor = (Player) sender;
+                                sponsor.openInventory(
+                                        plugin.bingoGame.getBingoMap(plugin.server.getPlayer(args[1])).getInventory());
+                            } else {
+                                badInput(sender);
+                            }
                             break;
 
                         default:
@@ -77,7 +90,8 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
         }
     }
 
-    private List<String> baseCommands = Arrays.asList("setup", "join", "start", "playerlist", "shutdown", "help");
+    private List<String> baseCommands = Arrays.asList("setup", "join", "start", "playerlist", "shutdown", "help",
+            "check");
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -85,8 +99,6 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
             if (args.length > 1) {
                 switch (args[0]) {
                     case "setup":
-                        // if (args.length == 2)
-                        // return Arrays.asList("easy", "normal", "hard", "impossible");
                         if (args.length < 3)
                             return Arrays.asList("allcollect", "shareinventory");
                     case "join":

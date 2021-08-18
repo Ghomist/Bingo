@@ -50,7 +50,7 @@ public class BingoGame {
         }
 
         boolean isInTeam(String team) {
-            return this.team.equalsIgnoreCase(team);
+            return this.team.equals(team);
         }
 
     }
@@ -81,15 +81,24 @@ public class BingoGame {
         if (!gameState.equals(BingoGameState.SETUP))
             return;
 
-        // create new player data
-        players.add(new BingoPlayer(player.getUniqueId(), new BingoMap(player, bingoMapCreator.returnDefaultMap()),
-                team,
-                scoreboard.getObjective("bingo").getScore(ChatColor.valueOf(team.toUpperCase()) + player.getName())));
+        if (isBingoPlayer(player)) {
+            // handle player rejoin
+            getBingoPlayer(player.getUniqueId()).team = team;
+        } else {
+            // create new player data
+            Inventory newInventory = Bukkit.createInventory(player, 45, player.getName() + "'s Bingo Map");
+            ItemStack[] itemList = bingoMapCreator.returnDefaultList();
+            for (int i = 0; i < 45; i++) {
+                newInventory.setItem(i, itemList[i]);
+            }
+            players.add(new BingoPlayer(player.getUniqueId(), new BingoMap(player, newInventory), team,
+                    scoreboard.getObjective("bingo").getScore(player.getName())));
 
-        // potion effects
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 999999, 255, false, false));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 999999, 255, false, false));
+            // potion effects
+            player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 999999, 255, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
+            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 999999, 255, false, false));
+        }
 
         // info
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 1f);
@@ -99,7 +108,7 @@ public class BingoGame {
         player.setScoreboard(scoreboard);
     }
 
-    protected void startGame(Player sponsor) {
+    protected void startGame(Bingo plugin, Player sponsor) {
         if (!gameState.equals(BingoGameState.SETUP))
             return;
 
@@ -138,7 +147,7 @@ public class BingoGame {
 
             // remove all the advancements
             // p.performCommand("/advancement revoke @s everything");
-            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),
+            plugin.getServer().dispatchCommand(Bukkit.getConsoleSender(),
                     "/advancement revoke " + p.getName() + " everything");
 
             // set spawnpoint
@@ -164,8 +173,6 @@ public class BingoGame {
         if (bPlayer.bingoMap.getIndex(item) == -1)
             return;
         int index = bPlayer.bingoMap.getIndex(item);
-        // hand in one item in need
-        item.setAmount(item.getAmount() - 1);
 
         if (shareInventory) {
             for (BingoPlayer p : players) {
@@ -183,10 +190,15 @@ public class BingoGame {
 
         players.forEach(bp -> {
             Player p = Bukkit.getPlayer(bp.uuid);
-            p.sendMessage(ChatColor.valueOf(bPlayer.team.toUpperCase()) + "[Bingo] " + player.getName()
-                    + " has achieved [" + item.getType().getKey().getKey() + "]");
-            p.playSound(p.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 1f);
+            if (p != null) {
+                p.sendMessage(ChatColor.valueOf(bPlayer.team.toUpperCase()) + "[Bingo] " + player.getName()
+                        + " has achieved [" + item.getType().getKey().getKey() + "]");
+                p.playSound(p.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 1f);
+            }
         });
+
+        // hand in one item in need
+        item.setAmount(item.getAmount() - 1);
 
         if (collectAll && bPlayer.bingoMap.testAllCollected()) {
             playerFinishBingo(player);
@@ -254,6 +266,10 @@ public class BingoGame {
                 return true;
         }
         return false;
+    }
+
+    protected Scoreboard getScoreboard() {
+        return scoreboard;
     }
 
     private boolean collectAll;

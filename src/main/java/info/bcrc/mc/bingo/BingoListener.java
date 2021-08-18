@@ -11,6 +11,7 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.inventory.ItemStack;
@@ -34,6 +35,7 @@ public class BingoListener implements Listener {
                 && item.getType().equals(Material.NETHER_STAR)) {
             event.setCancelled(true);
             event.getPlayer().openInventory(plugin.bingoGame.getBingoMap(event.getPlayer()).getInventory());
+            event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
         }
     }
 
@@ -76,6 +78,8 @@ public class BingoListener implements Listener {
             event.setCancelled(true);
             return;
         }
+
+        // try to achieve bingo
         Player player = event.getPlayer();
         plugin.bingoGame.playerGetItem(player, item);
     }
@@ -88,8 +92,18 @@ public class BingoListener implements Listener {
     @EventHandler
     public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
+        plugin.logger.info("1");
         if (plugin.bingoGame.isBingoPlayer(player)) {
             player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
+            plugin.logger.info("2");
+        }
+    }
+
+    @EventHandler
+    public void onPlayerJoinEvent(PlayerJoinEvent event) {
+        Player player = event.getPlayer();
+        if (plugin.bingoGame.isBingoPlayer(player)) {
+            player.setScoreboard(plugin.bingoGame.getScoreboard());
         }
     }
 

@@ -22,7 +22,7 @@ public class BingoMap {
         meta.setDisplayName(ChatColor.of(team.toUpperCase()) + player.getName() + " obtained");
         replacement.setItemMeta(meta);
 
-        inventory.setItem(inventory.first(item), replacement);
+        inventory.setItem(getIndex(item), replacement);
         owner.sendMessage("[Bingo] You have finished " + item.getType().getKey().getKey());
         collectedCount++;
     }
@@ -71,10 +71,13 @@ public class BingoMap {
 
     protected int getIndex(ItemStack item) {
         for (ItemStack i : inventory.getContents()) {
+            if (i == null)
+                continue;
             if (i.getType().equals(item.getType()))
                 return inventory.first(i);
         }
         return -1;
+        // return inventory.first(item);
     }
 
     protected Inventory getInventory() {
