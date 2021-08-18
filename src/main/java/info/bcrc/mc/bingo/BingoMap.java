@@ -63,8 +63,8 @@ public class BingoMap {
         return line || column || leftCaterCorner || rightCaterCorner;
     }
 
-    protected boolean testAllCollected() {
-        if (collectedCount == 25)
+    protected boolean testAllCollected(int num) {
+        if (collectedCount == num)
             return true;
         return false;
     }

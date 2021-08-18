@@ -51,7 +51,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                             break;
 
                         case "start":
-                            plugin.bingoGame.startGame(plugin, (Player) sender);
+                            plugin.bingoGame.startGame((Player) sender);
                             break;
 
                         case "shutdown":

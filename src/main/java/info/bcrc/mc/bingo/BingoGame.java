@@ -108,7 +108,7 @@ public class BingoGame {
         player.setScoreboard(scoreboard);
     }
 
-    protected void startGame(Bingo plugin, Player sponsor) {
+    protected void startGame(Player sponsor) {
         if (!gameState.equals(BingoGameState.SETUP))
             return;
 
@@ -145,11 +145,6 @@ public class BingoGame {
             // set gamemode to survival
             p.setGameMode(GameMode.SURVIVAL);
 
-            // remove all the advancements
-            // p.performCommand("/advancement revoke @s everything");
-            plugin.getServer().dispatchCommand(Bukkit.getConsoleSender(),
-                    "/advancement revoke " + p.getName() + " everything");
-
             // set spawnpoint
             p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREWORK);
 
@@ -159,6 +154,10 @@ public class BingoGame {
         });
         sponsor.getWorld().setGameRule(GameRule.KEEP_INVENTORY, true);
         sponsor.getWorld().setTime(1000);
+        // remove all the advancements
+        // p.performCommand("/advancement revoke @s everything");
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "/advancement revoke @a everything");
+        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke @a everything");
 
         gameState = BingoGameState.START;
     }
@@ -200,7 +199,13 @@ public class BingoGame {
         // hand in one item in need
         item.setAmount(item.getAmount() - 1);
 
-        if (collectAll && bPlayer.bingoMap.testAllCollected()) {
+        if (collectAll && !shareInventory && bPlayer.bingoMap.testAllCollected(25)) {
+            playerFinishBingo(player);
+            gameState = BingoGameState.END;
+            return;
+        }
+
+        if (collectAll && shareInventory && bPlayer.bingoMap.testAllCollected(25 / players.size())) {
             playerFinishBingo(player);
             gameState = BingoGameState.END;
         }
@@ -223,7 +228,8 @@ public class BingoGame {
             players.forEach(bp -> {
                 Player p = Bukkit.getPlayer(bp.uuid);
                 if (p != null) {
-                    p.sendMessage(ChatColor.YELLOW + "[Bingo] " + player.getName() + " has finished the bingo");
+                    p.sendMessage(ChatColor.YELLOW + "[Bingo] " + player.getName()
+                            + " has finished the bingo first with collecting " + bp.score + " items !");
                     p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
                 }
             });
