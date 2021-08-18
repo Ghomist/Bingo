@@ -11,6 +11,7 @@ import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
 import info.bcrc.mc.bingo.BingoGame.BingoGameState;
+import info.bcrc.mc.bingo.util.TpPlayer;
 
 public class BingoCommander implements CommandExecutor, TabCompleter {
 
@@ -78,6 +79,10 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                             }
                             break;
 
+                        case "up":
+                            TpPlayer.tpPlayerToGround((Player) sender);
+                            break;
+
                         default:
                             badInput(sender);
                             break;
@@ -95,7 +100,9 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
     }
 
     private List<String> baseCommands = Arrays.asList("setup", "join", "start", "playerlist", "shutdown", "help",
-            "check");
+            "check", "up");
+    private List<String> allColours = Arrays.asList("white", "orange", "magenta", "light_blue", "yellow", "lime",
+            "pink", "gray", "light_gray", "cyan", "purple", "blue", "brown", "green", "red" /* ,"black" */);
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -107,7 +114,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                             return Arrays.asList("allcollect", "shareinventory");
                     case "join":
                         if (args.length == 2)
-                            return Arrays.asList("red", "yellow", "blue", "green");
+                            return allColours;
                     case "start":
                         return null;
                     default:

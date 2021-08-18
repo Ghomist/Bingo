@@ -23,7 +23,7 @@ import org.bukkit.scoreboard.Score;
 import org.bukkit.scoreboard.Scoreboard;
 
 import info.bcrc.mc.bingo.util.BingoMapCreator;
-import info.bcrc.mc.bingo.util.RandomTpPlayer;
+import info.bcrc.mc.bingo.util.TpPlayer;
 
 public class BingoGame {
 
@@ -139,7 +139,7 @@ public class BingoGame {
             p.getInventory().setBoots(boots);
 
             // random teleport
-            RandomTpPlayer.randomTpPlayer(p);
+            TpPlayer.randomTpPlayer(p);
             p.setBedSpawnLocation(p.getLocation(), true);
 
             // set gamemode to survival

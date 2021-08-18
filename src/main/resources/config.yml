@@ -15,7 +15,22 @@ item-list:
     - SUGAR_CANE
     - PAPER
   4:
+    - WHITE_DYE
+    - ORANGE_DYE
+    - MAGENTA_DYE
+    - LIGHT_BLUE_DYE
+    - YELLOW_DYE
+    - LIME_DYE
+    - PINK_DYE
+    - GRAY_DYE
+    - LIGHT_GRAY_DYE
+    - CYAN_DYE
+    - PURPLE_DYE
+    - BLUE_DYE
+    - BROWN_DYE
     - GREEN_DYE
+    - RED_DYE
+    - BLACK_DYE
   5:
     - LAPIS_LAZULI
     - REDSTONE

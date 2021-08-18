@@ -5,12 +5,26 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-public class RandomTpPlayer {
+public class TpPlayer {
 
     public static void randomTpPlayer(Player player) {
         World world = player.getWorld();
         int x = (int) (Math.random() * range - range / 2);
         int z = (int) (Math.random() * range - range / 2);
+        int y = world.getHighestBlockYAt(x, z);
+
+        if (world.getBlockAt(x, y, z).getType().equals(Material.WATER))
+            world.getBlockAt(x, y, z).setType(Material.DIRT);
+
+        // +1 to make players stand on the ground 233
+        player.teleport(new Location(world, x, y + 1, z));
+
+    }
+
+    public static void tpPlayerToGround(Player player) {
+        World world = player.getWorld();
+        int x = player.getLocation().getBlockX();
+        int z = player.getLocation().getBlockZ();
         int y = world.getHighestBlockYAt(x, z);
 
         if (world.getBlockAt(x, y, z).getType().equals(Material.WATER))
