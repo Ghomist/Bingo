@@ -15,10 +15,6 @@ public class BingoMap {
         this.inventory = inventory;
     }
 
-    protected void openBingoMap() {
-        owner.openInventory(inventory);
-    }
-
     protected void playerGetItem(Player player, ItemStack item, String team) {
         ItemStack replacement = new ItemStack(Material.valueOf(team.toUpperCase() + "_STAINED_GLASS_PANE"));
         // replacement.addUnsafeEnchantment(Enchantment.LUCK, 1);

@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 import org.bukkit.Server;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import info.bcrc.mc.bingo.BingoGame.BingoGameState;
 import info.bcrc.mc.bingo.util.ConfigHandler;
 
 public class Bingo extends JavaPlugin {
@@ -33,6 +34,10 @@ public class Bingo extends JavaPlugin {
         getCommand("bingo").setExecutor(cmd);
 
         getConfig();
+
+        bingoGame = new BingoGame(this, false, false);
+        bingoGame.setGameState(BingoGameState.END);
+
     }
 
     @Override

@@ -40,13 +40,13 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
 
                         case "join":
                             if (args.length == 2)
-                                plugin.bingoGame.join((Player) sender, args[1]);
+                                plugin.bingoGame.playerJoin((Player) sender, args[1]);
                             else
                                 badInput(sender);
                             break;
 
                         case "start":
-                            plugin.bingoGame.start((Player) sender);
+                            plugin.bingoGame.startGame((Player) sender);
                             break;
 
                         case "shutdown":

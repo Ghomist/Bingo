@@ -1,9 +1,9 @@
 package info.bcrc.mc.bingo;
 
-import java.util.HashMap;
-import java.util.Set;
+import java.util.HashSet;
 import java.util.UUID;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.GameRule;
@@ -27,79 +27,70 @@ public class BingoGame {
         SETUP, START, END
     }
 
+    protected class BingoPlayer {
+        UUID uuid;
+        String team;
+        BingoMap bingoMap;
+
+        protected BingoPlayer(UUID uuid, BingoMap bingoMap, String team) {
+            this.uuid = uuid;
+            this.team = team;
+            this.bingoMap = bingoMap;
+        }
+
+        boolean is(UUID uuid) {
+            return this.uuid.equals(uuid);
+        }
+
+        boolean isInTeam(String team) {
+            return this.team.equalsIgnoreCase(team);
+        }
+
+    }
+
     protected BingoGame(Bingo plugin, boolean collectAll, boolean shareInventory) {
+        // handle gamemode
         this.collectAll = collectAll;
         this.shareInventory = shareInventory;
 
         bingoMapCreator = new BingoMapCreator(plugin);
 
+        // info
         plugin.getServer().getOnlinePlayers().forEach(p -> p.sendMessage("[Bingo] A bingo game has been set up"));
-        gameState = BingoGameState.SETUP;
-
         plugin.getServer().getOnlinePlayers()
                 .forEach(p -> p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f));
+
+        gameState = BingoGameState.SETUP;
+
     }
 
-    protected void join(Player player, String team) {
-        if (gameState.equals(BingoGameState.START) && !getPlayers().contains(player)) {
-            rejoin(player);
-        }
-
+    protected void playerJoin(Player player, String team) {
         if (!gameState.equals(BingoGameState.SETUP))
             return;
 
-        if (player_team.keySet().contains(player)) {
-            player_team.replace(player, team);
-            players_maps.replace(player, new BingoMap(player, bingoMapCreator.returnDefaultMap()));
-        } else {
-            player_team.put(player, team);
-            players_maps.put(player, new BingoMap(player, bingoMapCreator.returnDefaultMap()));
-        }
+        // create new player data
+        players.add(
+                new BingoPlayer(player.getUniqueId(), new BingoMap(player, bingoMapCreator.returnDefaultMap()), team));
 
+        // potion effects
         player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 999999, 255, false, false));
         player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
         player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 999999, 255, false, false));
 
-        player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 1f, 1f);
-        sendMessageToAll(ChatColor.valueOf(team.toUpperCase()) + "[Bingo] " + player.getName() + " have joined as "
-                + team + " team");
+        // info
+        player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 1f);
+        messageAll(ChatColor.valueOf(team.toUpperCase()) + "[Bingo] " + player.getName() + " have joined as " + team
+                + " team");
+        printPlayerList(player);
     }
 
-    protected void playerQuit(Player player) {
-        if (getPlayers().contains(player) && gameState.equals(BingoGameState.START)) {
-            UUID uuid = player.getUniqueId();
-            player_savedMaps.put(uuid, players_maps.get(player));
-            player_savedTeam.put(uuid, player_team.get(player));
+    protected void startGame(Player sponsor) {
+        players.forEach(bp -> {
+            // get player
+            if (!Bukkit.getOfflinePlayer(bp.uuid).isOnline())
+                return;
+            Player p = Bukkit.getOfflinePlayer(bp.uuid).getPlayer();
 
-            player_team.remove(player);
-            players_maps.remove(player);
-        }
-    }
-
-    protected void rejoin(Player player) {
-        UUID uuid = player.getUniqueId();
-        if (player_savedMaps.keySet().contains(uuid) && gameState.equals(BingoGameState.START)) {
-            player_team.put(player, player_savedTeam.get(uuid));
-            players_maps.put(player, player_savedMaps.get(uuid));
-
-            player_savedMaps.remove(uuid);
-            player_savedTeam.remove(uuid);
-        }
-    }
-
-    protected void printPlayerList(Player player) {
-        if (gameState.equals(BingoGameState.END))
-            return;
-
-        player.sendMessage("[Bingo] Player lists: (Color stands for team)");
-        getPlayers().forEach(p -> {
-            player.sendMessage(" - " + ChatColor.valueOf(player_team.get(p).toUpperCase()) + p.getName());
-        });
-        player.sendMessage(getPlayers().size() + " players joined the game in total");
-    }
-
-    protected void start(Player sponsor) {
-        getPlayers().forEach(p -> {
             // manage players' potion effects
             for (PotionEffect effect : p.getActivePotionEffects()) {
                 p.removePotionEffect(effect.getType());
@@ -144,32 +135,37 @@ public class BingoGame {
         if (!gameState.equals(BingoGameState.START))
             return;
 
-        BingoMap map = players_maps.get(player);
-        String team = player_team.get(player);
-        int index = map.getIndex(item); // get the index of tested slot
+        BingoPlayer bPlayer = getBingoPlayer(player.getUniqueId());
 
-        if (shareInventory)
-            players_maps.values().forEach(m -> m.playerGetItem(player, item, team));
-        else {
-            player_team.forEach((p, t) -> {
-                if (t.equalsIgnoreCase(team)) {
-                    players_maps.get(p).playerGetItem(player, item, team);
-                }
-            });
+        // get item index in advance
+        if (bPlayer.bingoMap.getIndex(item) == -1)
+            return;
+        int index = bPlayer.bingoMap.getIndex(item);
+
+        if (shareInventory) {
+            for (BingoPlayer p : players) {
+                p.bingoMap.playerGetItem(player, item, bPlayer.team);
+            }
+        } else {
+            for (BingoPlayer p : players) {
+                if (p.isInTeam(bPlayer.team))
+                    p.bingoMap.playerGetItem(player, item, bPlayer.team);
+            }
         }
 
-        getPlayers().forEach(p -> {
-            p.sendMessage(ChatColor.valueOf(team.toUpperCase()) + "[Bingo] " + player.getName() + " has achieved ["
-                    + item.getType().getKey().getKey() + "]");
+        players.forEach(bp -> {
+            Player p = Bukkit.getPlayer(bp.uuid);
+            p.sendMessage(ChatColor.valueOf(bPlayer.team.toUpperCase()) + "[Bingo] " + player.getName()
+                    + " has achieved [" + item.getType().getKey().getKey() + "]");
             p.playSound(p.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 1f);
         });
 
-        if (collectAll && map.testAllCollected()) {
+        if (collectAll && bPlayer.bingoMap.testAllCollected()) {
             playerFinishBingo(player);
             gameState = BingoGameState.END;
         }
 
-        if (!collectAll && map.testCross(index)) {
+        if (!collectAll && bPlayer.bingoMap.testCross(index)) {
             playerFinishBingo(player);
             gameState = BingoGameState.END;
         }
@@ -181,57 +177,55 @@ public class BingoGame {
             return;
 
         if (player == null) {
-            sendMessageToAll(ChatColor.RED + "[Bingo] The game had been shut up forcibly");
+            messageAll(ChatColor.RED + "[Bingo] The game had been shut up forcibly");
             gameState = BingoGameState.END;
         } else {
-            getPlayers().forEach(p -> {
-                p.sendMessage(ChatColor.YELLOW + "[Bingo] " + player.getName() + " has finished the bingo");
-                p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+            players.forEach(bp -> {
+                Player p = Bukkit.getPlayer(bp.uuid);
+                if (p != null) {
+                    p.sendMessage(ChatColor.YELLOW + "[Bingo] " + player.getName() + " has finished the bingo");
+                    p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+                }
             });
         }
     }
 
-    protected boolean isInventoryBingoMap(Inventory inventory) {
-        for (BingoMap m : players_maps.values())
-            if (m.getInventory().equals(inventory))
-                return true;
-
-        return false;
+    protected BingoMap getBingoMap(Player player) {
+        return getBingoPlayer(player.getUniqueId()).bingoMap;
     }
 
-    protected boolean isItemTarget(Player player, ItemStack item) {
-        return players_maps.get(player).getInventory().contains(item);
-    }
-
-    protected boolean isStarted() {
-        return gameState.equals(BingoGameState.START);
-    }
-
-    protected Set<Player> getPlayers() {
-        return players_maps.keySet();
-    }
-
-    protected void replacePlayer(Player formerPlayer, Player currentPlayer) {
-        player_team.put(currentPlayer, player_team.get(formerPlayer));
-        players_maps.put(currentPlayer, players_maps.get(formerPlayer));
-
-        player_team.remove(formerPlayer);
-        players_maps.remove(formerPlayer);
-    }
-
-    protected void sendMessageToAll(String msg) {
-        getPlayers().forEach(p -> p.sendMessage(msg));
-    }
-
-    protected void openBingoMap(Player player) {
-        if (getPlayers().contains(player)) {
-            players_maps.get(player).openBingoMap();
-            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+    protected void printPlayerList(Player player) {
+        player.sendMessage("[Bingo] Player list:");
+        for (BingoPlayer p : players) {
+            if (Bukkit.getPlayer(p.uuid) != null)
+                player.sendMessage(
+                        ChatColor.valueOf(p.team.toUpperCase()) + " - " + Bukkit.getPlayer(p.uuid).getName());
         }
     }
 
     protected BingoGameState getGameState() {
         return gameState;
+    }
+
+    protected void setGameState(BingoGameState gameState) {
+        this.gameState = gameState;
+    }
+
+    protected boolean isBingoMap(Inventory inventory) {
+        for (BingoPlayer p : players) {
+            if (p.bingoMap.getInventory().equals(inventory)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    protected boolean isBingoPlayer(Player player) {
+        for (BingoPlayer p : players) {
+            if (player.getUniqueId().equals(p.uuid))
+                return true;
+        }
+        return false;
     }
 
     private boolean collectAll;
@@ -240,9 +234,23 @@ public class BingoGame {
     private BingoGameState gameState;
     private BingoMapCreator bingoMapCreator;
 
-    private HashMap<Player, BingoMap> players_maps = new HashMap<>();
-    private HashMap<Player, String> player_team = new HashMap<>();
-    private HashMap<UUID, BingoMap> player_savedMaps = new HashMap<>();
-    private HashMap<UUID, String> player_savedTeam = new HashMap<>();
+    private HashSet<BingoPlayer> players = new HashSet<>();
+
+    private BingoPlayer getBingoPlayer(UUID uuid) {
+        for (BingoPlayer p : players) {
+            if (p.is(uuid)) {
+                return p;
+            }
+        }
+        return null;
+    }
+
+    private void messageAll(String msg) {
+        for (BingoPlayer p : players) {
+            if (Bukkit.getPlayer(p.uuid) != null) {
+                Bukkit.getPlayer(p.uuid).sendMessage(msg);
+            }
+        }
+    }
 
 }
