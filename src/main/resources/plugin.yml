@@ -1,5 +1,5 @@
-name: BingoForMinecraft
-version: "1.0-SNAPSHOT"
+name: Bingo
+version: "0.0.2"
 author: Ghomist
 main: info.bcrc.mc.bingo.Bingo
 api-version: 1.17
