@@ -17,6 +17,10 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scoreboard.DisplaySlot;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
 
 import info.bcrc.mc.bingo.util.BingoMapCreator;
 import info.bcrc.mc.bingo.util.RandomTpPlayer;
@@ -31,11 +35,14 @@ public class BingoGame {
         UUID uuid;
         String team;
         BingoMap bingoMap;
+        Score score;
 
-        protected BingoPlayer(UUID uuid, BingoMap bingoMap, String team) {
+        protected BingoPlayer(UUID uuid, BingoMap bingoMap, String team, Score score) {
             this.uuid = uuid;
             this.team = team;
             this.bingoMap = bingoMap;
+            this.score = score;
+            score.setScore(0);
         }
 
         boolean is(UUID uuid) {
@@ -55,6 +62,12 @@ public class BingoGame {
 
         bingoMapCreator = new BingoMapCreator(plugin);
 
+        // make scoreboard
+        scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
+        Objective objective = scoreboard.registerNewObjective("bingo", "", "");
+        objective.setDisplaySlot(DisplaySlot.SIDEBAR);
+        objective.setDisplayName("Bingo Score");
+
         // info
         plugin.getServer().getOnlinePlayers().forEach(p -> p.sendMessage("[Bingo] A bingo game has been set up"));
         plugin.getServer().getOnlinePlayers()
@@ -69,8 +82,9 @@ public class BingoGame {
             return;
 
         // create new player data
-        players.add(
-                new BingoPlayer(player.getUniqueId(), new BingoMap(player, bingoMapCreator.returnDefaultMap()), team));
+        players.add(new BingoPlayer(player.getUniqueId(), new BingoMap(player, bingoMapCreator.returnDefaultMap()),
+                team,
+                scoreboard.getObjective("bingo").getScore(ChatColor.valueOf(team.toUpperCase()) + player.getName())));
 
         // potion effects
         player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 999999, 255, false, false));
@@ -118,6 +132,11 @@ public class BingoGame {
             // set gamemode to survival
             p.setGameMode(GameMode.SURVIVAL);
 
+            // remove all the advancements
+            // p.performCommand("/advancement revoke @s everything");
+            Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(),
+                    "/advancement revoke " + p.getName() + " everything");
+
             // set spawnpoint
             p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREWORK);
 
@@ -132,7 +151,7 @@ public class BingoGame {
     }
 
     protected void playerGetItem(Player player, ItemStack item) {
-        if (!gameState.equals(BingoGameState.START))
+        if (!gameState.equals(BingoGameState.START) || item == null)
             return;
 
         BingoPlayer bPlayer = getBingoPlayer(player.getUniqueId());
@@ -141,15 +160,20 @@ public class BingoGame {
         if (bPlayer.bingoMap.getIndex(item) == -1)
             return;
         int index = bPlayer.bingoMap.getIndex(item);
+        // hand in one item in need
+        item.setAmount(item.getAmount() - 1);
 
         if (shareInventory) {
             for (BingoPlayer p : players) {
                 p.bingoMap.playerGetItem(player, item, bPlayer.team);
+                p.score.setScore(p.score.getScore() + 1);
             }
         } else {
             for (BingoPlayer p : players) {
-                if (p.isInTeam(bPlayer.team))
+                if (p.isInTeam(bPlayer.team)) {
                     p.bingoMap.playerGetItem(player, item, bPlayer.team);
+                    p.score.setScore(p.score.getScore() + 1);
+                }
             }
         }
 
@@ -235,6 +259,8 @@ public class BingoGame {
     private BingoMapCreator bingoMapCreator;
 
     private HashSet<BingoPlayer> players = new HashSet<>();
+
+    private Scoreboard scoreboard;
 
     private BingoPlayer getBingoPlayer(UUID uuid) {
         for (BingoPlayer p : players) {

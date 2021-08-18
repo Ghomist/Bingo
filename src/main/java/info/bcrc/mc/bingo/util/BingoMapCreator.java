@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -17,7 +18,7 @@ public class BingoMapCreator {
     public BingoMapCreator(Bingo plugin) {
         this.configHandler = plugin.getConfigHandler();
 
-        defaultMap = plugin.getServer().createInventory(null, 45, "BingoCard");
+        defaultMap = Bukkit.createInventory(null, 45, "Bingo Card");
 
         List<List<ItemStack>> itemList = configHandler.returnItemList();
         ItemStack emptyStack = new ItemStack(Material.AIR);

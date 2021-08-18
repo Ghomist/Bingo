@@ -70,7 +70,11 @@ public class BingoMap {
     }
 
     protected int getIndex(ItemStack item) {
-        return inventory.first(item);
+        for (ItemStack i : inventory.getContents()) {
+            if (i.getType().equals(item.getType()))
+                return inventory.first(i);
+        }
+        return -1;
     }
 
     protected Inventory getInventory() {

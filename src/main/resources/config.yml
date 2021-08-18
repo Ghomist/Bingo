@@ -83,7 +83,7 @@ item-list:
   18:
     - FERN
     - GRASS
-    - WEEPING_VINES
+    - VINE
     - DEAD_BUSH
   19:
     - SNOWBALL
@@ -131,7 +131,7 @@ item-list:
     - BAKED_POTATO
     - BREAD
   28:
-    - BIG_DRIPLEAF
+    - POINTED_DRIPSTONE
     - GLOW_LICHEN
     - AMETHYST_SHARD
     - MOSSY_STONE_BRICKS
@@ -151,7 +151,7 @@ item-list:
     - FISHING_ROD
     - CARROT_ON_A_STICK
   32:
-    - BUNDLE
+    - LEAD
     - SLIME_BLOCK
     - HONEY_BLOCK
     - BAMBOO
