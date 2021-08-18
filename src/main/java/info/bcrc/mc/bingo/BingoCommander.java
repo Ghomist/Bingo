@@ -10,6 +10,8 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 
+import info.bcrc.mc.bingo.BingoGame.BingoGameState;
+
 public class BingoCommander implements CommandExecutor, TabCompleter {
 
     public BingoCommander(Bingo plugin) {
@@ -66,9 +68,11 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
 
                         case "check":
                             if (args.length == 2) {
-                                Player sponsor = (Player) sender;
-                                sponsor.openInventory(
-                                        plugin.bingoGame.getBingoMap(plugin.server.getPlayer(args[1])).getInventory());
+                                if (plugin.bingoGame.getGameState().equals(BingoGameState.START)) {
+                                    Player sponsor = (Player) sender;
+                                    sponsor.openInventory(plugin.bingoGame.getBingoMap(plugin.server.getPlayer(args[1]))
+                                            .getInventory());
+                                }
                             } else {
                                 badInput(sender);
                             }

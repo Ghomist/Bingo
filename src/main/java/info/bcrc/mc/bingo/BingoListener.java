@@ -1,5 +1,6 @@
 package info.bcrc.mc.bingo;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
@@ -78,7 +79,6 @@ public class BingoListener implements Listener {
             event.setCancelled(true);
             return;
         }
-
         // try to achieve bingo
         Player player = event.getPlayer();
         plugin.bingoGame.playerGetItem(player, item);
@@ -92,10 +92,10 @@ public class BingoListener implements Listener {
     @EventHandler
     public void onPlayerRespawnEvent(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        plugin.logger.info("1");
         if (plugin.bingoGame.isBingoPlayer(player)) {
-            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
-            plugin.logger.info("2");
+            Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
+                player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
+            });
         }
     }
 
