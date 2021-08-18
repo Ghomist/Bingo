@@ -100,6 +100,9 @@ public class BingoGame {
     }
 
     protected void startGame(Player sponsor) {
+        if (!gameState.equals(BingoGameState.SETUP))
+            return;
+
         players.forEach(bp -> {
             // get player
             if (!Bukkit.getOfflinePlayer(bp.uuid).isOnline())
