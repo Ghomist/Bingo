@@ -96,6 +96,7 @@ public class BingoGame {
         messageAll(ChatColor.valueOf(team.toUpperCase()) + "[Bingo] " + player.getName() + " have joined as " + team
                 + " team");
         printPlayerList(player);
+        player.setScoreboard(scoreboard);
     }
 
     protected void startGame(Player sponsor) {
