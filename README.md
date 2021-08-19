@@ -11,9 +11,9 @@ Every player will receive a bingo card with 25 items in a 5\*5 chart.<br>
 When the game was start, everyone should try to collect items on bingo card.<br>
 Depend on the game mode, there are different mechanics of winning the game.
 
-### For specific details
+### Other details
 
-Check on [wikipedia](<https://en.wikipedia.org/wiki/Bingo_(American_version)>)!([Chinese page here](https://zh.wikipedia.org/wiki/%E7%BE%8E%E5%BC%8F%E8%B3%93%E6%9E%9C))
+Check on [wikipedia](<https://en.wikipedia.org/wiki/Bingo_(American_version)>)! ([Chinese page here](https://zh.wikipedia.org/wiki/%E7%BE%8E%E5%BC%8F%E8%B3%93%E6%9E%9C))
 
 ## Requirement
 
