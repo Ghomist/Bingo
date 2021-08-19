@@ -25,8 +25,8 @@ Check on [wikipedia](<https://en.wikipedia.org/wiki/Bingo_(American_version)>)! 
   Main command of this plugin. You can use this command for getting some information.
 - `/bingo setup [allcollect]|[shareinventory]`<br>
   Set up a new bingo game. Type in mode(s) after the command, **allcollect** and **shareinventory** is alternative.<br>
-  `allcollect`: the game will be finished only when all the items on map was collected or when someone use /bingo shutdown<br>
-  `shareinventory`: every player in game shares the same bingo card, which means you cannot finish a slot that someone else has finished.
+  **allcollect**: the game will be finished only when all the items on map was collected or when someone use /bingo shutdown<br>
+  **shareinventory**: every player in game shares the same bingo card, which means you cannot finish a slot that someone else has finished.
 - `/bingo join [red|blue|yellow|green]`<br>
   Join a team named after colours, which are supposed in Minecraft especially.
 - `/bingo start`<br>
