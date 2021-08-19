@@ -11,7 +11,7 @@ import net.md_5.bungee.api.ChatColor;
 public class BingoMap {
 
     protected BingoMap(Player owner, Inventory inventory) {
-        this.owner = owner;
+        // this.owner = owner;
         this.inventory = inventory;
     }
 
@@ -23,7 +23,8 @@ public class BingoMap {
         replacement.setItemMeta(meta);
 
         inventory.setItem(getIndex(item), replacement);
-        owner.sendMessage("[Bingo] You have finished " + item.getType().getKey().getKey());
+        // owner.sendMessage("[Bingo] You have finished " +
+        // item.getType().getKey().getKey());
         collectedCount++;
     }
 
@@ -84,7 +85,7 @@ public class BingoMap {
         return inventory;
     }
 
-    private Player owner;
+    // private Player owner;
     private Inventory inventory;
     private int collectedCount = 0;
 

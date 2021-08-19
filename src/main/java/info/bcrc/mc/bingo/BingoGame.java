@@ -27,6 +27,8 @@ import info.bcrc.mc.bingo.util.TpPlayer;
 
 public class BingoGame {
 
+    public String announcer = "" + ChatColor.BOLD + ChatColor.GOLD + "[Bingo] " + ChatColor.RESET;
+
     protected enum BingoGameState {
         SETUP, START, END
     }
@@ -69,7 +71,12 @@ public class BingoGame {
         objective.setDisplayName("Bingo Score");
 
         // info
-        plugin.getServer().getOnlinePlayers().forEach(p -> p.sendMessage("[Bingo] A bingo game has been set up"));
+        plugin.getServer().getOnlinePlayers().forEach(p -> {
+            p.sendMessage(announcer + "A bingo game has been set up");
+            p.sendMessage(announcer + "Mode setting: ");
+            p.sendMessage("Collect All: " + collectAll);
+            p.sendMessage("Share Inventory: " + shareInventory);
+        });
         plugin.getServer().getOnlinePlayers()
                 .forEach(p -> p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f));
 
@@ -86,7 +93,8 @@ public class BingoGame {
             getBingoPlayer(player.getUniqueId()).team = team;
         } else {
             // create new player data
-            Inventory newInventory = Bukkit.createInventory(player, 45, player.getName() + "'s Bingo Map");
+            Inventory newInventory = Bukkit.createInventory(player, 45,
+                    ChatColor.valueOf(team.toUpperCase()) + player.getName() + ChatColor.RESET + "'s Bingo Map");
             ItemStack[] itemList = bingoMapCreator.returnDefaultList();
             for (int i = 0; i < 45; i++) {
                 newInventory.setItem(i, itemList[i]);
@@ -102,8 +110,7 @@ public class BingoGame {
 
         // info
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 1f);
-        messageAll(ChatColor.valueOf(team.toUpperCase()) + "[Bingo] " + player.getName() + " have joined as " + team
-                + " team");
+        messageAll(announcer + formatPlayerName(player) + "have joined as " + team + " team");
         printPlayerList(player);
         player.setScoreboard(scoreboard);
     }
@@ -150,7 +157,7 @@ public class BingoGame {
 
             // info
             p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 1f, 1f);
-            p.sendMessage("[Bingo] The game has been started");
+            p.sendMessage(announcer + "The game has been started");
         });
         sponsor.getWorld().setGameRule(GameRule.KEEP_INVENTORY, true);
         sponsor.getWorld().setTime(1000);
@@ -188,8 +195,7 @@ public class BingoGame {
         players.forEach(bp -> {
             Player p = Bukkit.getPlayer(bp.uuid);
             if (p != null) {
-                p.sendMessage(ChatColor.valueOf(bPlayer.team.toUpperCase()) + "[Bingo] " + player.getName()
-                        + " has achieved [" + item.getType().getKey().getKey() + "]");
+                p.sendMessage(announcer + formatPlayerName(player) + "has achieved" + formatItemName(item));
                 p.playSound(p.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 1f);
             }
         });
@@ -220,13 +226,13 @@ public class BingoGame {
             return;
 
         if (player == null) {
-            messageAll(ChatColor.RED + "[Bingo] The game had been shut up forcibly");
+            messageAll(announcer + ChatColor.RED + "The game had been shut up forcibly by" + formatPlayerName(player));
             gameState = BingoGameState.END;
         } else {
             players.forEach(bp -> {
                 Player p = Bukkit.getPlayer(bp.uuid);
                 if (p != null) {
-                    p.sendMessage(ChatColor.YELLOW + "[Bingo] " + player.getName()
+                    p.sendMessage(announcer + formatPlayerName(player)
                             + " has finished the bingo first with collecting " + bp.score + " items !");
                     p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
                 }
@@ -239,7 +245,7 @@ public class BingoGame {
     }
 
     protected void printPlayerList(Player player) {
-        player.sendMessage("[Bingo] Player list:");
+        player.sendMessage(announcer + "Player list:");
         for (BingoPlayer p : players) {
             if (Bukkit.getPlayer(p.uuid) != null)
                 player.sendMessage(
@@ -303,4 +309,18 @@ public class BingoGame {
         }
     }
 
+    private String formatItemName(ItemStack item) {
+        StringBuffer str = new StringBuffer(" [");
+        str.append(ChatColor.BOLD).append(item.getType().getKey().getKey()).append(ChatColor.RESET).append("] ")
+                .append(ChatColor.RESET);
+        return str.toString();
+    }
+
+    private String formatPlayerName(Player player) {
+        StringBuffer str = new StringBuffer("");
+        BingoPlayer bp = getBingoPlayer(player.getUniqueId());
+        str.append(ChatColor.valueOf(bp.team.toUpperCase())).append(player.getName()).append(" ")
+                .append(ChatColor.RESET);
+        return str.toString();
+    }
 }
