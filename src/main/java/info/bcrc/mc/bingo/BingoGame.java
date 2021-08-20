@@ -212,31 +212,30 @@ public class BingoGame {
         item.setAmount(item.getAmount() - 1);
 
         if (collectAll && !shareInventory && bPlayer.bingoMap.testAllCollected(25)) {
-            playerFinishBingo(player);
+            playerFinishBingo(player, false);
             gameState = BingoGameState.END;
             return;
         }
 
         if (collectAll && shareInventory && bPlayer.bingoMap.testAllCollected(25 / players.size()))
-            playerFinishBingo(player);
+            playerFinishBingo(player, false);
 
         if (!collectAll && bPlayer.bingoMap.testCross(index))
-            playerFinishBingo(player);
+            playerFinishBingo(player, false);
     }
 
-    protected void playerFinishBingo(Player player) {
+    protected void playerFinishBingo(Player player, boolean isForcibly) {
         if (gameState.equals(BingoGameState.END))
             return;
 
-        if (player == null) {
+        if (isForcibly) {
             String msg = announcer + ChatColor.RED + "The game had been shut up forcibly by" + formatPlayerName(player);
-
             messageAll(msg);
             System.out.println(msg);
+            return;
         } else {
             String msg = announcer + formatPlayerName(player) + "has finished the bingo first with collecting "
                     + getBingoPlayer(player.getUniqueId()).score.getScore() + " items!";
-
             players.forEach(bp -> {
                 Player p = Bukkit.getPlayer(bp.uuid);
                 if (p != null) {
