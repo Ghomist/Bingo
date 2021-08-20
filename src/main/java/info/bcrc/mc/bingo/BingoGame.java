@@ -248,6 +248,7 @@ public class BingoGame {
                         p.getInventory().clear(8);
                     if (p.getInventory().getBoots().getType().equals(Material.LEATHER_BOOTS))
                         p.getInventory().getBoots().setType(Material.AIR);
+                    p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
                 }
             });
             System.out.println(msg);
