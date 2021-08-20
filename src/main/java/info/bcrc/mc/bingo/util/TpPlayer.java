@@ -33,6 +33,7 @@ public class TpPlayer {
 
         // info
         player.playSound(player.getLocation(), Sound.ENTITY_ENDERMAN_TELEPORT, 1f, 1f);
+
     }
 
     public static void tpPlayerToGround(Player player) {

@@ -45,7 +45,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                             break;
 
                         case "join":
-                            if (args.length == 2)
+                            if (args.length == 2 && allTeams.contains(args[1]))
                                 plugin.bingoGame.playerJoin((Player) sender, args[1]);
                             else
                                 badInput(sender);
@@ -102,8 +102,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
 
     private List<String> baseCommands = Arrays.asList("setup", "join", "start", "playerlist", "shutdown", "help",
             "check", "up");
-    private List<String> allColours = Arrays.asList("white", "orange", "magenta", "light_blue", "yellow", "lime",
-            "pink", "gray", "light_gray", "cyan", "purple", "blue", "brown", "green", "red" /* ,"black" */);
+    private List<String> allTeams = Arrays.asList("red", "yellow", "blue", "green"/* ,gray */);
 
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
@@ -115,7 +114,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                             return Arrays.asList("allcollect", "shareinventory");
                     case "join":
                         if (args.length == 2)
-                            return allColours;
+                            return allTeams;
                     case "start":
                         return null;
                     default:
