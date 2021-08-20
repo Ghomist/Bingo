@@ -39,7 +39,10 @@ Check on [wikipedia](<https://en.wikipedia.org/wiki/Bingo_(American_version)>)! 
   Turn off the bingo game forcibly.
 - `/bingo help`<br>
   Get some help of this plugin.
+- `/bingo up`<br>
+  Teleport the sender of the command up to the ground.
 
 ## Objects List
 
-**_WIP_**. For plugin configuration, see [**config.yml**](src/main/resources/config.yml).
+Only items or blocks on **the allowed item list** will appear in the bingo card.
+For checking the list, see [**config.yml**](src/main/resources/config.yml).

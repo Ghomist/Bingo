@@ -129,7 +129,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
     }
 
     private void badInput(CommandSender sender) {
-        sender.sendMessage(ChatColor.RED + "[Bingo]: Bad Input");
+        sender.sendMessage(BingoGame.announcer + ChatColor.RED + "Bad Input");
     }
 
     private Bingo plugin;

@@ -10,7 +10,6 @@ import org.bukkit.GameRule;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -27,7 +26,7 @@ import info.bcrc.mc.bingo.util.TpPlayer;
 
 public class BingoGame {
 
-    public String announcer = "" + ChatColor.BOLD + ChatColor.GOLD + "[Bingo] " + ChatColor.RESET;
+    public static String announcer = "" + ChatColor.BOLD + ChatColor.GOLD + "[Bingo] " + ChatColor.RESET;
 
     protected enum BingoGameState {
         SETUP, START, END
@@ -90,23 +89,21 @@ public class BingoGame {
 
         if (isBingoPlayer(player)) {
             // handle player rejoin
-            getBingoPlayer(player.getUniqueId()).team = team;
-        } else {
-            // create new player data
-            Inventory newInventory = Bukkit.createInventory(player, 45,
-                    ChatColor.valueOf(team.toUpperCase()) + player.getName() + ChatColor.RESET + "'s Bingo Map");
-            ItemStack[] itemList = bingoMapCreator.returnDefaultList();
-            for (int i = 0; i < 45; i++) {
-                newInventory.setItem(i, itemList[i]);
-            }
-            players.add(new BingoPlayer(player.getUniqueId(), new BingoMap(player, newInventory), team,
-                    scoreboard.getObjective("bingo").getScore(player.getName())));
-
-            // potion effects
-            player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 999999, 255, false, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
-            player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 999999, 255, false, false));
+            players.remove(getBingoPlayer(player.getUniqueId()));
         }
+        // create new player data
+        Inventory newInventory = Bukkit.createInventory(player, 45, player.getName() + "'s Bingo Map");
+        ItemStack[] itemList = bingoMapCreator.returnDefaultList();
+        for (int i = 0; i < 45; i++) {
+            newInventory.setItem(i, itemList[i]);
+        }
+        players.add(new BingoPlayer(player.getUniqueId(), new BingoMap(player, newInventory), team,
+                scoreboard.getObjective("bingo").getScore(player.getName())));
+
+        // potion effects
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 999999, 255, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.DAMAGE_RESISTANCE, 999999, 255, false, false));
 
         // info
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 1f);
@@ -142,25 +139,26 @@ public class BingoGame {
 
             // give players boots with depth strider
             ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
-            boots.addUnsafeEnchantment(Enchantment.DEPTH_STRIDER, 5);
+            boots.addUnsafeEnchantment(Enchantment.DEPTH_STRIDER, 3);
+            boots.addUnsafeEnchantment(Enchantment.DAMAGE_UNDEAD, 10);
             p.getInventory().setBoots(boots);
 
             // random teleport
             TpPlayer.randomTpPlayer(p);
+
+            // set spawnpoint
             p.setBedSpawnLocation(p.getLocation(), true);
 
             // set gamemode to survival
             p.setGameMode(GameMode.SURVIVAL);
 
-            // set spawnpoint
-            p.getWorld().spawnEntity(p.getLocation(), EntityType.FIREWORK);
-
             // info
             p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 1f, 1f);
+            p.sendTitle("Bingo Start!", "Find more items on the card", 10, 100, 20);
             p.sendMessage(announcer + "The game has been started");
         });
         sponsor.getWorld().setGameRule(GameRule.KEEP_INVENTORY, true);
-        sponsor.getWorld().setTime(1000);
+        sponsor.getWorld().setTime(0);
         // remove all the advancements
         Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke @a everything");
 
@@ -209,16 +207,11 @@ public class BingoGame {
             return;
         }
 
-        if (collectAll && shareInventory && bPlayer.bingoMap.testAllCollected(25 / players.size())) {
+        if (collectAll && shareInventory && bPlayer.bingoMap.testAllCollected(25 / players.size()))
             playerFinishBingo(player);
-            gameState = BingoGameState.END;
-        }
 
-        if (!collectAll && bPlayer.bingoMap.testCross(index)) {
+        if (!collectAll && bPlayer.bingoMap.testCross(index))
             playerFinishBingo(player);
-            gameState = BingoGameState.END;
-        }
-
     }
 
     protected void playerFinishBingo(Player player) {
@@ -227,17 +220,24 @@ public class BingoGame {
 
         if (player == null) {
             messageAll(announcer + ChatColor.RED + "The game had been shut up forcibly by" + formatPlayerName(player));
-            gameState = BingoGameState.END;
         } else {
             players.forEach(bp -> {
                 Player p = Bukkit.getPlayer(bp.uuid);
                 if (p != null) {
                     p.sendMessage(announcer + formatPlayerName(player)
-                            + " has finished the bingo first with collecting " + bp.score + " items !");
+                            + " has finished the bingo first with collecting " + bp.score.getScore() + " items !");
                     p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+                    p.closeInventory();
+                    p.sendTitle("Game Over!", formatPlayerName(player)
+                            + " has finished the bingo first with collecting " + bp.score.getScore() + " items !", 10,
+                            100, 20);
+                    p.getInventory().clear(8);
+                    if (p.getInventory().getBoots().getType().equals(Material.LEATHER_BOOTS))
+                        p.getInventory().getBoots().setType(Material.AIR);
                 }
             });
         }
+        gameState = BingoGameState.END;
     }
 
     protected BingoMap getBingoMap(Player player) {

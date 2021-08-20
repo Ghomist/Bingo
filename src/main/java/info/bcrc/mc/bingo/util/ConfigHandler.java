@@ -3,16 +3,17 @@ package info.bcrc.mc.bingo.util;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 
 import info.bcrc.mc.bingo.Bingo;
-import net.md_5.bungee.api.ChatColor;
 
 public class ConfigHandler {
 
     public ConfigHandler(Bingo plugin) {
-        for (int i = 1; i <= 32; i++) {
+        int length = plugin.getConfig().getInt("item-list.length");
+        for (int i = 1; i <= length; i++) {
             List<ItemStack> items = new ArrayList<>();
             plugin.getConfig().getStringList("item-list." + i)
                     .forEach(str -> items.add(new ItemStack(Material.valueOf(str))));
