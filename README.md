@@ -3,6 +3,11 @@
 **Now you can play bingo game in Minecraft 1.17+ with this little plugin!!!**<br>
 It's a plugin of bingo game in Minecraft.
 
+## Preview
+
+![game_start](pic/game_start.png)
+![bingo_map](pic/bingo_map.png)
+
 ## What is Bingo
 
 ### Rules
