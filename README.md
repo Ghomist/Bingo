@@ -6,7 +6,7 @@ It's a plugin of bingo game in Minecraft.
 ## Preview
 
 ![game_start](pic/game_start.png)
-![bingo_map](pic/bingo_map.png)
+![bingo_map](pic/bingo_map.jpg)
 
 ## What is Bingo
 
