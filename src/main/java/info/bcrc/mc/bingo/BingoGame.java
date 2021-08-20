@@ -202,7 +202,7 @@ public class BingoGame {
         players.forEach(bp -> {
             Player p = Bukkit.getPlayer(bp.uuid);
             if (p != null) {
-                p.sendMessage();
+                p.sendMessage(msg);
                 p.playSound(p.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 1f);
             }
         });
@@ -234,7 +234,7 @@ public class BingoGame {
             messageAll(msg);
             System.out.println(msg);
         } else {
-            String msg = announcer + formatPlayerName(player) + " has finished the bingo first with collecting "
+            String msg = announcer + formatPlayerName(player) + "has finished the bingo first with collecting "
                     + getBingoPlayer(player.getUniqueId()).score.getScore() + " items!";
 
             players.forEach(bp -> {
