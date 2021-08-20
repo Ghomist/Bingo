@@ -3,6 +3,7 @@ package info.bcrc.mc.bingo;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,6 +13,7 @@ import org.bukkit.event.inventory.InventoryMoveItemEvent;
 import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerDropItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerItemDamageEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
@@ -111,4 +113,10 @@ public class BingoListener implements Listener {
             player.setScoreboard(plugin.bingoGame.getScoreboard());
     }
 
+    @EventHandler
+    public void on(PlayerItemDamageEvent event) {
+        ItemStack item = event.getItem();
+        if (item.getType().equals(Material.LEATHER_BOOTS) && item.containsEnchantment(Enchantment.DEPTH_STRIDER))
+            event.setCancelled(true);
+    }
 }

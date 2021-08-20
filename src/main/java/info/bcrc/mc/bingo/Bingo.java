@@ -42,10 +42,10 @@ public class Bingo extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
     }
 
     public ConfigHandler getConfigHandler() {
         return configHandler;
     }
+
 }

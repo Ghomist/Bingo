@@ -9,6 +9,7 @@ import org.bukkit.GameMode;
 import org.bukkit.GameRule;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -79,6 +80,8 @@ public class BingoGame {
         plugin.getServer().getOnlinePlayers()
                 .forEach(p -> p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f));
 
+        System.out.println(announcer + "A bingo game has been set up");
+
         gameState = BingoGameState.SETUP;
 
     }
@@ -107,7 +110,9 @@ public class BingoGame {
 
         // info
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 1f);
-        messageAll(announcer + formatPlayerName(player) + "have joined as " + team + " team");
+        String msg = announcer + formatPlayerName(player) + "have joined as " + team + " team";
+        messageAll(msg);
+        System.out.println(msg);
         printPlayerList(player);
         player.setScoreboard(scoreboard);
     }
@@ -127,6 +132,7 @@ public class BingoGame {
                 p.removePotionEffect(effect.getType());
             }
             p.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
+            p.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 999999, 255, false, false));
 
             p.getInventory().clear();
             // give players nether start
@@ -136,11 +142,10 @@ public class BingoGame {
             item.setItemMeta(meta);
             item.addUnsafeEnchantment(Enchantment.BINDING_CURSE, 1);
             p.getInventory().setItem(8, item);
-
             // give players boots with depth strider
             ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
             boots.addUnsafeEnchantment(Enchantment.DEPTH_STRIDER, 3);
-            boots.addUnsafeEnchantment(Enchantment.DAMAGE_UNDEAD, 10);
+            boots.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
             p.getInventory().setBoots(boots);
 
             // random teleport
@@ -154,7 +159,7 @@ public class BingoGame {
 
             // info
             p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 1f, 1f);
-            p.sendTitle("Bingo Start!", "Find more items on the card", 10, 100, 20);
+            p.sendTitle(formatTitle("Game Start"), "Go and Seek items on the map!", 10, 100, 20);
             p.sendMessage(announcer + "The game has been started");
         });
         sponsor.getWorld().setGameRule(GameRule.KEEP_INVENTORY, true);
@@ -162,7 +167,10 @@ public class BingoGame {
         // remove all the advancements
         sponsor.getServer().dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke @a everything");
 
+        System.out.println(announcer + "The game has been started by " + formatPlayerName(sponsor));
+
         gameState = BingoGameState.START;
+
     }
 
     protected void playerGetItem(Player player, ItemStack item) {
@@ -190,13 +198,15 @@ public class BingoGame {
             }
         }
 
+        String msg = announcer + formatPlayerName(player) + "has achieved" + formatItemName(item);
         players.forEach(bp -> {
             Player p = Bukkit.getPlayer(bp.uuid);
             if (p != null) {
-                p.sendMessage(announcer + formatPlayerName(player) + "has achieved" + formatItemName(item));
+                p.sendMessage();
                 p.playSound(p.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 1f);
             }
         });
+        System.out.println(msg);
 
         // hand in one item in need
         item.setAmount(item.getAmount() - 1);
@@ -219,23 +229,29 @@ public class BingoGame {
             return;
 
         if (player == null) {
-            messageAll(announcer + ChatColor.RED + "The game had been shut up forcibly by" + formatPlayerName(player));
+            String msg = announcer + ChatColor.RED + "The game had been shut up forcibly by" + formatPlayerName(player);
+
+            messageAll(msg);
+            System.out.println(msg);
         } else {
+            String msg = announcer + formatPlayerName(player) + " has finished the bingo first with collecting "
+                    + getBingoPlayer(player.getUniqueId()).score.getScore() + " items!";
+
             players.forEach(bp -> {
                 Player p = Bukkit.getPlayer(bp.uuid);
                 if (p != null) {
-                    p.sendMessage(announcer + formatPlayerName(player)
-                            + " has finished the bingo first with collecting " + bp.score.getScore() + " items !");
+                    p.sendMessage(msg);
                     p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
                     p.closeInventory();
-                    p.sendTitle("Game Over!", formatPlayerName(player)
-                            + " has finished the bingo first with collecting " + bp.score.getScore() + " items !", 10,
-                            100, 20);
-                    p.getInventory().clear(8);
+                    p.sendTitle(formatTitle("Game Over"), formatPlayerName(player) + "has finished the bingo first!",
+                            10, 100, 20);
+                    if (p.getInventory().getItem(8).getType().equals(Material.NETHER_STAR))
+                        p.getInventory().clear(8);
                     if (p.getInventory().getBoots().getType().equals(Material.LEATHER_BOOTS))
                         p.getInventory().getBoots().setType(Material.AIR);
                 }
             });
+            System.out.println(msg);
         }
         gameState = BingoGameState.END;
     }
@@ -244,12 +260,15 @@ public class BingoGame {
         return getBingoPlayer(player.getUniqueId()).bingoMap;
     }
 
-    protected void printPlayerList(Player player) {
-        player.sendMessage(announcer + "Player list:");
+    protected void printPlayerList(CommandSender sender) {
+        sender.sendMessage(announcer + "Player list:");
+        System.out.println(announcer + "Player list:");
         for (BingoPlayer p : players) {
-            if (Bukkit.getPlayer(p.uuid) != null)
-                player.sendMessage(
+            if (Bukkit.getPlayer(p.uuid) != null) {
+                sender.sendMessage(
                         ChatColor.valueOf(p.team.toUpperCase()) + " - " + Bukkit.getPlayer(p.uuid).getName());
+                System.out.println(p.team.toUpperCase() + " - " + Bukkit.getPlayer(p.uuid).getName());
+            }
         }
     }
 
@@ -321,6 +340,14 @@ public class BingoGame {
         BingoPlayer bp = getBingoPlayer(player.getUniqueId());
         str.append(ChatColor.valueOf(bp.team.toUpperCase())).append(player.getName()).append(" ")
                 .append(ChatColor.RESET);
+        return str.toString();
+    }
+
+    private String formatTitle(String title) {
+        StringBuffer str = new StringBuffer("");
+        str.append(ChatColor.MAGIC + "aaa" + ChatColor.RESET)
+                .append(ChatColor.GOLD + " " + title + " " + ChatColor.RESET)
+                .append(ChatColor.MAGIC + "aaa" + ChatColor.RESET);
         return str.toString();
     }
 }

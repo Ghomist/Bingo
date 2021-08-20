@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
+import org.bukkit.block.Biome;
 import org.bukkit.inventory.ItemStack;
 
 import info.bcrc.mc.bingo.Bingo;
@@ -39,7 +40,12 @@ public class ConfigHandler {
         return commandUsage;
     }
 
+    public List<Biome> returnBiomes() {
+        return biomes;
+    }
+
     private List<List<ItemStack>> itemList = new ArrayList<>();
+    private List<Biome> biomes = new ArrayList<>();
 
     private String bingoInfo = "";
     private String commandUsage = "";

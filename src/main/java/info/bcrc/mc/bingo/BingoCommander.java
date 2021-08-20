@@ -60,7 +60,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                             break;
 
                         case "playerlist":
-                            plugin.bingoGame.printPlayerList((Player) sender);
+                            plugin.bingoGame.printPlayerList(sender);
                             break;
 
                         case "help":
@@ -69,7 +69,8 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
 
                         case "check":
                             if (args.length == 2) {
-                                if (plugin.bingoGame.getGameState().equals(BingoGameState.START)) {
+                                if (plugin.bingoGame.getGameState().equals(BingoGameState.START)
+                                        || plugin.bingoGame.getGameState().equals(BingoGameState.END)) {
                                     Player sponsor = (Player) sender;
                                     sponsor.openInventory(plugin.bingoGame.getBingoMap(plugin.server.getPlayer(args[1]))
                                             .getInventory());
@@ -130,6 +131,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
 
     private void badInput(CommandSender sender) {
         sender.sendMessage(BingoGame.announcer + ChatColor.RED + "Bad Input");
+        plugin.logger.info(BingoGame.announcer + ChatColor.RED + "Bad Input");
     }
 
     private Bingo plugin;
