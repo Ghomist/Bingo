@@ -160,7 +160,7 @@ public class BingoGame {
         sponsor.getWorld().setGameRule(GameRule.KEEP_INVENTORY, true);
         sponsor.getWorld().setTime(0);
         // remove all the advancements
-        Bukkit.getServer().dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke @a everything");
+        sponsor.getServer().dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke @a everything");
 
         gameState = BingoGameState.START;
     }
