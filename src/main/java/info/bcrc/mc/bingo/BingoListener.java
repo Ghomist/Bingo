@@ -117,7 +117,7 @@ public class BingoListener implements Listener {
     }
 
     @EventHandler
-    public void on(PlayerItemDamageEvent event) {
+    public void onPlayerItemDamageEvent(PlayerItemDamageEvent event) {
         ItemStack item = event.getItem();
         if (item.getType().equals(Material.LEATHER_BOOTS) && item.containsEnchantment(Enchantment.DEPTH_STRIDER))
             event.setCancelled(true);
