@@ -1,6 +1,7 @@
 package info.bcrc.mc.bingo;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.enchantments.Enchantment;
@@ -93,7 +94,9 @@ public class BingoListener implements Listener {
     public void onPlayerDeathEvent(PlayerDeathEvent event) {
         Player player = event.getEntity();
         player.playSound(player.getLocation(), Sound.ENTITY_WITCH_CELEBRATE, 1f, 1f);
-        player.sendMessage(BingoGame.announcer + ChatColor.GRAY + "Death position: " + player.getLocation().toString());
+        Location location = event.getEntity().getLocation();
+        player.sendMessage(BingoGame.announcer + ChatColor.GRAY + "Death position: " + ChatColor.GREEN + "("
+                + location.getBlockX() + ", " + location.getBlockY() + ", " + location.getBlockZ() + ")");
     }
 
     @EventHandler
