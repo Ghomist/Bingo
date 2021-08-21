@@ -64,8 +64,12 @@ public class BingoMap {
         return line || column || leftCaterCorner || rightCaterCorner;
     }
 
-    protected boolean testAllCollected(int num) {
-        if (collectedCount == num)
+    protected boolean testAllCollected(int playerCount) {
+        int limit = 25 / playerCount;
+        if (25 % playerCount != 0)
+            limit += 1;
+
+        if (collectedCount == limit)
             return true;
         return false;
     }

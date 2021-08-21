@@ -38,6 +38,7 @@ public class BingoGame {
         String team;
         BingoMap bingoMap;
         Score score;
+        boolean hasFinishedBingo = false;
 
         protected BingoPlayer(UUID uuid, BingoMap bingoMap, String team, Score score) {
             this.uuid = uuid;
@@ -92,7 +93,9 @@ public class BingoGame {
 
         if (isBingoPlayer(player)) {
             // handle player rejoin
+            String formerTeam = getBingoPlayer(player.getUniqueId()).team;
             players.remove(getBingoPlayer(player.getUniqueId()));
+            scoreboard.resetScores(ChatColor.valueOf(formerTeam.toUpperCase()) + player.getName());
         }
         // create new player data
         Inventory newInventory = Bukkit.createInventory(player, 45, player.getName() + "'s Bingo Map");
@@ -101,7 +104,7 @@ public class BingoGame {
             newInventory.setItem(i, itemList[i]);
         }
         players.add(new BingoPlayer(player.getUniqueId(), new BingoMap(player, newInventory), team,
-                scoreboard.getObjective("bingo").getScore(player.getName())));
+                scoreboard.getObjective("bingo").getScore(ChatColor.valueOf(team.toUpperCase()) + player.getName())));
 
         // potion effects
         player.addPotionEffect(new PotionEffect(PotionEffectType.SATURATION, 999999, 255, false, false));
@@ -159,7 +162,7 @@ public class BingoGame {
 
             // info
             p.playSound(p.getLocation(), Sound.BLOCK_BELL_USE, 1f, 1f);
-            p.sendTitle(formatTitle("Game Start"), "Go and Seek items on the map!", 10, 100, 20);
+            p.sendTitle(formatTitle("Game Start"), "Go and seek items on the map!", 10, 100, 20);
             p.sendMessage(announcer + "The game has been started");
         });
         sponsor.getWorld().setGameRule(GameRule.KEEP_INVENTORY, true);
@@ -210,18 +213,19 @@ public class BingoGame {
 
         // hand in one item in need
         item.setAmount(item.getAmount() - 1);
+        if (!bPlayer.hasFinishedBingo) {
+            if (collectAll && !shareInventory && bPlayer.bingoMap.testAllCollected(25)) {
+                playerFinishBingo(player, false);
+                gameState = BingoGameState.END;
+                return;
+            }
 
-        if (collectAll && !shareInventory && bPlayer.bingoMap.testAllCollected(25)) {
-            playerFinishBingo(player, false);
-            gameState = BingoGameState.END;
-            return;
+            if (collectAll && shareInventory && bPlayer.bingoMap.testAllCollected(players.size()))
+                playerFinishBingo(player, false);
+
+            if (!collectAll && bPlayer.bingoMap.testCross(index))
+                playerFinishBingo(player, false);
         }
-
-        if (collectAll && shareInventory && bPlayer.bingoMap.testAllCollected(25 / players.size()))
-            playerFinishBingo(player, false);
-
-        if (!collectAll && bPlayer.bingoMap.testCross(index))
-            playerFinishBingo(player, false);
     }
 
     protected void playerFinishBingo(Player player, boolean isForcibly) {
@@ -232,28 +236,68 @@ public class BingoGame {
             String msg = announcer + ChatColor.RED + "The game had been shut up forcibly by" + formatPlayerName(player);
             messageAll(msg);
             System.out.println(msg);
+            gameState = BingoGameState.END;
             return;
         } else {
-            String msg = announcer + formatPlayerName(player) + "has finished the bingo first with collecting "
-                    + getBingoPlayer(player.getUniqueId()).score.getScore() + " items!";
-            players.forEach(bp -> {
-                Player p = Bukkit.getPlayer(bp.uuid);
-                if (p != null) {
-                    p.sendMessage(msg);
-                    p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
-                    p.closeInventory();
-                    p.sendTitle(formatTitle("Game Over"), formatPlayerName(player) + "has finished the bingo first!",
-                            10, 100, 20);
-                    if (p.getInventory().getItem(8).getType().equals(Material.NETHER_STAR))
-                        p.getInventory().clear(8);
-                    if (p.getInventory().getBoots().getType().equals(Material.LEATHER_BOOTS))
-                        p.getInventory().getBoots().setType(Material.AIR);
-                    p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
-                }
-            });
-            System.out.println(msg);
+            if (collectAll) {
+                String msg = announcer + "Game over! " + formatPlayerName(player) + " was the winner!";
+                players.forEach(bp -> {
+                    Player p = Bukkit.getPlayer(bp.uuid);
+                    if (p != null) {
+                        // close inventory to show info
+                        p.closeInventory();
+                        // info
+                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+                        p.sendMessage(msg);
+                        printPlayerList(p);
+                        p.sendTitle(formatTitle("Bingo!"), formatPlayerName(player) + " has been the first!", 10, 100,
+                                20);
+
+                        // handel inventory
+                        if (p.getInventory().getItem(8).getType().equals(Material.NETHER_STAR))
+                            p.getInventory().clear(8);
+                        if (p.getInventory().getBoots().getType().equals(Material.LEATHER_BOOTS))
+                            p.getInventory().getBoots().setType(Material.AIR);
+                        // remove scoreboard
+                        p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+                    }
+                });
+                gameState = BingoGameState.END;
+            } else {
+                finishedPlayerCount++;
+                String msg = announcer + formatPlayerName(player) + "has finished the bingo with collecting "
+                        + getBingoPlayer(player.getUniqueId()).score.getScore() + " items!";
+                players.forEach(bp -> {
+                    Player p = Bukkit.getPlayer(bp.uuid);
+                    if (p != null) {
+                        // close inventory to show info
+                        p.closeInventory();
+                        // info
+                        p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f);
+                        p.sendMessage(msg);
+
+                        if (finishedPlayerCount < players.size()) {
+                            // keep gaming and info
+                            p.sendTitle(formatTitle("No." + finishedPlayerCount + " bingo!"),
+                                    formatPlayerName(player) + "has finished the bingo!", 10, 60, 20);
+                        } else {
+                            // info
+                            p.sendTitle(formatTitle("Game Over"), "All player has finished bingo!", 10, 100, 20);
+                            // handel inventory
+                            if (p.getInventory().getItem(8).getType().equals(Material.NETHER_STAR))
+                                p.getInventory().clear(8);
+                            if (p.getInventory().getBoots().getType().equals(Material.LEATHER_BOOTS))
+                                p.getInventory().getBoots().setType(Material.AIR);
+                            // remove scoreboard
+                            p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
+                        }
+                    }
+                    if (finishedPlayerCount == players.size())
+                        gameState = BingoGameState.END;
+                });
+                System.out.println(msg);
+            }
         }
-        gameState = BingoGameState.END;
     }
 
     protected BingoMap getBingoMap(Player player) {
@@ -265,9 +309,10 @@ public class BingoGame {
         System.out.println(announcer + "Player list:");
         for (BingoPlayer p : players) {
             if (Bukkit.getPlayer(p.uuid) != null) {
-                sender.sendMessage(
-                        ChatColor.valueOf(p.team.toUpperCase()) + " - " + Bukkit.getPlayer(p.uuid).getName());
-                System.out.println(p.team.toUpperCase() + " - " + Bukkit.getPlayer(p.uuid).getName());
+                sender.sendMessage(ChatColor.valueOf(p.team.toUpperCase()) + " - " + Bukkit.getPlayer(p.uuid).getName()
+                        + " (" + p.score.getScore() + ")");
+                System.out.println(p.team.toUpperCase() + " - " + Bukkit.getPlayer(p.uuid).getName() + " ("
+                        + p.score.getScore() + ")");
             }
         }
     }
@@ -311,6 +356,8 @@ public class BingoGame {
 
     private Scoreboard scoreboard;
 
+    private int finishedPlayerCount = 0;
+
     private BingoPlayer getBingoPlayer(UUID uuid) {
         for (BingoPlayer p : players) {
             if (p.is(uuid)) {
@@ -329,9 +376,9 @@ public class BingoGame {
     }
 
     private String formatItemName(ItemStack item) {
-        StringBuffer str = new StringBuffer(" [");
-        str.append(ChatColor.BOLD).append(item.getType().getKey().getKey()).append(ChatColor.RESET).append("] ")
-                .append(ChatColor.RESET);
+        StringBuffer str = new StringBuffer(ChatColor.GREEN + " [");
+        str.append(ChatColor.BOLD).append(item.getType().getKey().getKey()).append(ChatColor.RESET)
+                .append(ChatColor.GREEN + "] ").append(ChatColor.RESET);
         return str.toString();
     }
 

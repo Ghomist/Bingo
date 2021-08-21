@@ -93,7 +93,7 @@ public class BingoListener implements Listener {
     public void onPlayerDeathEvent(PlayerDeathEvent event) {
         Player player = event.getEntity();
         player.playSound(player.getLocation(), Sound.ENTITY_WITCH_CELEBRATE, 1f, 1f);
-        player.sendMessage(BingoGame.announcer + ChatColor.GRAY + "Death position: " + player.getLocale());
+        player.sendMessage(BingoGame.announcer + ChatColor.GRAY + "Death position: " + player.getLocation().toString());
     }
 
     @EventHandler
