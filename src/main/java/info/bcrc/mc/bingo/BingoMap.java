@@ -11,20 +11,16 @@ import net.md_5.bungee.api.ChatColor;
 public class BingoMap {
 
     protected BingoMap(Player owner, Inventory inventory) {
-        // this.owner = owner;
         this.inventory = inventory;
     }
 
     protected void playerGetItem(Player player, ItemStack item, String team) {
         ItemStack replacement = new ItemStack(Material.valueOf(team.toUpperCase() + "_STAINED_GLASS_PANE"));
-        // replacement.addUnsafeEnchantment(Enchantment.LUCK, 1);
         ItemMeta meta = replacement.getItemMeta();
         meta.setDisplayName(ChatColor.of(team.toUpperCase()) + player.getName() + " obtained");
         replacement.setItemMeta(meta);
 
         inventory.setItem(getIndex(item), replacement);
-        // owner.sendMessage("[Bingo] You have finished " +
-        // item.getType().getKey().getKey());
         collectedCount++;
     }
 
@@ -82,14 +78,12 @@ public class BingoMap {
                 return inventory.first(i);
         }
         return -1;
-        // return inventory.first(item);
     }
 
     protected Inventory getInventory() {
         return inventory;
     }
 
-    // private Player owner;
     private Inventory inventory;
     private int collectedCount = 0;
 
