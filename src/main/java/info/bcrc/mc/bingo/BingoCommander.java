@@ -26,7 +26,8 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                 if (args.length >= 1) {
                     switch (args[0]) {
                         case "setup":
-                            if (args.length >= 1 && args.length <= 3) {
+                            if (args.length >= 1 && args.length <= 3
+                                    && plugin.bingoGame.getGameState().equals(BingoGameState.END)) {
                                 boolean allcollect = false;
                                 if (Arrays.asList(args).contains("allcollect"))
                                     allcollect = true;
@@ -52,7 +53,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                             break;
 
                         case "start":
-                            plugin.bingoGame.startGame((Player) sender);
+                            plugin.bingoGame.startGame(plugin, (Player) sender);
                             break;
 
                         case "shutdown":

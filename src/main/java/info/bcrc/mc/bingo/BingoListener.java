@@ -33,6 +33,29 @@ public class BingoListener implements Listener {
         this.plugin = plugin;
     }
 
+    @EventHandler // (priority = EventPriority.HIGH)
+    public void onInventoryClickEvent(InventoryClickEvent event) {
+        if (event.getCurrentItem() != null)
+            if (plugin.bingoGame.isBingoMap(event.getInventory())
+                    || (event.getCurrentItem().getType().equals(Material.NETHER_STAR)
+                            && plugin.bingoGame.getGameState().equals(BingoGameState.START)))
+                event.setCancelled(true);
+
+    }
+
+    @EventHandler // (priority = EventPriority.HIGH)
+    public void onInventoryPickupItemEvent(InventoryPickupItemEvent event) {
+        if (plugin.bingoGame.getGameState().equals(BingoGameState.START)
+                && event.getItem().getItemStack().getType().equals(Material.NETHER_STAR))
+            event.setCancelled(true);
+    }
+
+    @EventHandler
+    public void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
+        if (plugin.bingoGame.isBingoMap(event.getDestination()))
+            event.setCancelled(true);
+    }
+
     @EventHandler
     public void onPlayerInteractEvent(PlayerInteractEvent event) {
         ItemStack item = event.getItem();
@@ -42,33 +65,6 @@ public class BingoListener implements Listener {
             event.getPlayer().openInventory(plugin.bingoGame.getBingoMap(event.getPlayer()).getInventory());
             event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
         }
-    }
-
-    @EventHandler // (priority = EventPriority.HIGH)
-    public void onInventoryClickEvent(InventoryClickEvent event) {
-        if (event.getCurrentItem() != null) {
-            if ((event.getCurrentItem().getType().equals(Material.NETHER_STAR)
-                    && plugin.bingoGame.getGameState().equals(BingoGameState.START))
-                    || plugin.bingoGame.isBingoMap(event.getInventory())) {
-                event.setCancelled(true);
-            }
-        }
-    }
-
-    @EventHandler // (priority = EventPriority.HIGH)
-    public void onInventoryPickupItemEvent(InventoryPickupItemEvent event) {
-        if (plugin.bingoGame.getGameState().equals(BingoGameState.START)) {
-            if (event.getItem().getItemStack().getType().equals(Material.NETHER_STAR))
-                event.setCancelled(true);
-            // plugin.bingoGame.playerGetItem((Player) event.getInventory().getHolder(),
-            // event.getItem().getItemStack());
-        }
-    }
-
-    @EventHandler
-    public void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
-        if (plugin.bingoGame.isBingoMap(event.getDestination()))
-            event.setCancelled(true);
     }
 
     @EventHandler
@@ -82,6 +78,8 @@ public class BingoListener implements Listener {
         ItemStack item = event.getItemDrop().getItemStack();
 
         if (item.getType().equals(Material.NETHER_STAR)) {
+            event.getPlayer().openInventory(plugin.bingoGame.getBingoMap(event.getPlayer()).getInventory());
+            event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
             event.setCancelled(true);
             return;
         }

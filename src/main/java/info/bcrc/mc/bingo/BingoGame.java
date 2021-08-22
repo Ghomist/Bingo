@@ -1,5 +1,6 @@
 package info.bcrc.mc.bingo;
 
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -17,6 +18,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
 import org.bukkit.scoreboard.Score;
@@ -24,6 +26,8 @@ import org.bukkit.scoreboard.Scoreboard;
 
 import info.bcrc.mc.bingo.util.BingoMapCreator;
 import info.bcrc.mc.bingo.util.TpPlayer;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class BingoGame {
 
@@ -33,14 +37,50 @@ public class BingoGame {
         SETUP, START, END
     }
 
-    protected class BingoPlayer {
-        UUID uuid;
+    protected class BingoTime {
+        private int timeValue;
+
+        protected BingoTime() {
+            timeValue = 0;
+        }
+
+        protected void timeCount(int count) {
+            if (timeValue < 3600)
+                timeValue += count;
+        }
+
+        public String toString() {
+            if (timeValue >= 3600) {
+                return "Out of 1 hour!";
+            } else {
+                int m = timeValue / 60;
+                String min;
+                if (m < 10)
+                    min = "0" + m;
+                else
+                    min = "" + m;
+
+                int s = timeValue % 60;
+                String second;
+                if (s < 10)
+                    second = "0" + s;
+                else
+                    second = "" + s;
+
+                return min + ":" + second;
+            }
+        }
+    }
+
+    public class BingoPlayer {
+        public UUID uuid;
+
         String team;
         BingoMap bingoMap;
         Score score;
         boolean hasFinishedBingo = false;
 
-        protected BingoPlayer(UUID uuid, BingoMap bingoMap, String team, Score score) {
+        public BingoPlayer(UUID uuid, BingoMap bingoMap, String team, Score score) {
             this.uuid = uuid;
             this.team = team;
             this.bingoMap = bingoMap;
@@ -67,9 +107,8 @@ public class BingoGame {
 
         // make scoreboard
         scoreboard = Bukkit.getScoreboardManager().getNewScoreboard();
-        Objective objective = scoreboard.registerNewObjective("bingo", "", "");
+        Objective objective = scoreboard.registerNewObjective("bingo", "", "Bingo Score");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
-        objective.setDisplayName("Bingo Score");
 
         // info
         plugin.getServer().getOnlinePlayers().forEach(p -> {
@@ -113,14 +152,18 @@ public class BingoGame {
 
         // info
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 1f);
-        String msg = announcer + formatPlayerName(player) + "have joined as " + team + " team";
+        String msg = announcer + formatPlayerName(player) + "has joined as " + team + " team";
         messageAll(msg);
         System.out.println(msg);
         printPlayerList(player);
         player.setScoreboard(scoreboard);
     }
 
-    protected void startGame(Player sponsor) {
+    protected void startGame(Bingo plugin, Player sponsor) {
+        BingoPlayer bSponsor = getBingoPlayer(sponsor.getUniqueId());
+        if (bSponsor == null || !players.contains(bSponsor))
+            return;
+
         if (!gameState.equals(BingoGameState.SETUP))
             return;
 
@@ -142,6 +185,7 @@ public class BingoGame {
             ItemStack item = new ItemStack(Material.NETHER_STAR);
             ItemMeta meta = item.getItemMeta();
             meta.setDisplayName("Bingo card");
+            meta.setLore(Arrays.asList(ChatColor.GREEN + "Click with this to open bingo map", ""));
             item.setItemMeta(meta);
             item.addUnsafeEnchantment(Enchantment.BINDING_CURSE, 1);
             p.getInventory().setItem(8, item);
@@ -172,6 +216,20 @@ public class BingoGame {
 
         System.out.println(announcer + "The game has been started by " + formatPlayerName(sponsor));
 
+        timeCounter = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
+            @Override
+            public void run() {
+                players.forEach(bp -> {
+                    Player p = Bukkit.getPlayer(bp.uuid);
+                    if (p != null) {
+                        p.spigot().sendMessage(ChatMessageType.ACTION_BAR,
+                                TextComponent.fromLegacyText(gameTime.toString()));
+                    }
+                });
+                gameTime.timeCount(1);
+            }
+        }, 0, 20);
+
         gameState = BingoGameState.START;
 
     }
@@ -201,7 +259,8 @@ public class BingoGame {
             }
         }
 
-        String msg = announcer + formatPlayerName(player) + "has achieved" + formatItemName(item);
+        // info
+        String msg = announcer + formatPlayerName(player) + "has achieved" + formatItemName(item) + "at " + gameTime;
         players.forEach(bp -> {
             Player p = Bukkit.getPlayer(bp.uuid);
             if (p != null) {
@@ -233,9 +292,13 @@ public class BingoGame {
             return;
 
         if (isForcibly) {
-            String msg = announcer + ChatColor.RED + "The game had been shut up forcibly by" + formatPlayerName(player);
+            // info
+            String msg = announcer + ChatColor.RED + "The game had been shut up forcibly by "
+                    + formatPlayerName(player);
             messageAll(msg);
             System.out.println(msg);
+            // stop game
+            Bukkit.getScheduler().cancelTask(timeCounter.getTaskId());
             gameState = BingoGameState.END;
             return;
         } else {
@@ -262,11 +325,13 @@ public class BingoGame {
                         p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
                     }
                 });
+                // stop game
+                Bukkit.getScheduler().cancelTask(timeCounter.getTaskId());
                 gameState = BingoGameState.END;
             } else {
                 finishedPlayerCount++;
                 String msg = announcer + formatPlayerName(player) + "has finished the bingo with collecting "
-                        + getBingoPlayer(player.getUniqueId()).score.getScore() + " items!";
+                        + getBingoPlayer(player.getUniqueId()).score.getScore() + " items in " + gameTime;
                 players.forEach(bp -> {
                     Player p = Bukkit.getPlayer(bp.uuid);
                     if (p != null) {
@@ -283,6 +348,7 @@ public class BingoGame {
                         } else {
                             // info
                             p.sendTitle(formatTitle("Game Over"), "All player has finished bingo!", 10, 100, 20);
+                            printPlayerList(p);
                             // handel inventory
                             if (p.getInventory().getItem(8).getType().equals(Material.NETHER_STAR))
                                 p.getInventory().clear(8);
@@ -292,8 +358,11 @@ public class BingoGame {
                             p.setScoreboard(Bukkit.getScoreboardManager().getNewScoreboard());
                         }
                     }
-                    if (finishedPlayerCount == players.size())
+                    if (finishedPlayerCount == players.size()) {
+                        // stop game
+                        Bukkit.getScheduler().cancelTask(timeCounter.getTaskId());
                         gameState = BingoGameState.END;
+                    }
                 });
                 System.out.println(msg);
             }
@@ -358,6 +427,10 @@ public class BingoGame {
 
     private int finishedPlayerCount = 0;
 
+    private BukkitTask timeCounter;
+
+    private BingoTime gameTime = new BingoTime();
+
     private BingoPlayer getBingoPlayer(UUID uuid) {
         for (BingoPlayer p : players) {
             if (p.is(uuid)) {
@@ -385,8 +458,9 @@ public class BingoGame {
     private String formatPlayerName(Player player) {
         StringBuffer str = new StringBuffer("");
         BingoPlayer bp = getBingoPlayer(player.getUniqueId());
-        str.append(ChatColor.valueOf(bp.team.toUpperCase())).append(player.getName()).append(" ")
-                .append(ChatColor.RESET);
+        if (bp != null)
+            str.append(ChatColor.valueOf(bp.team.toUpperCase())).append(player.getName()).append(" ")
+                    .append(ChatColor.RESET);
         return str.toString();
     }
 
