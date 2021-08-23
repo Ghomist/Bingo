@@ -226,7 +226,11 @@ public class BingoGame {
                                 TextComponent.fromLegacyText(gameTime.toString()));
                     }
                 });
-                gameTime.timeCount(1);
+                if (gameTime.timeValue > 3600) {
+                    playerFinishBingo(null, true);
+                } else {
+                    gameTime.timeCount(1);
+                }
             }
         }, 0, 20);
 
@@ -292,11 +296,23 @@ public class BingoGame {
             return;
 
         if (isForcibly) {
+            String msg = "";
+            if (player == null) {
+                // shutdown by timer
+                msg = announcer + ChatColor.RED + "Time is up!";
+                players.forEach(bp -> {
+                    Player p = Bukkit.getPlayer(bp.uuid);
+                    if (p != null)
+                        printPlayerList(p);
+                });
+            } else {
+                // shutdown by player
+                msg = announcer + ChatColor.RED + "The game had been shut up forcibly by " + formatPlayerName(player);
+            }
             // info
-            String msg = announcer + ChatColor.RED + "The game had been shut up forcibly by "
-                    + formatPlayerName(player);
             messageAll(msg);
             System.out.println(msg);
+
             // stop game
             Bukkit.getScheduler().cancelTask(timeCounter.getTaskId());
             gameState = BingoGameState.END;
@@ -449,9 +465,9 @@ public class BingoGame {
     }
 
     private String formatItemName(ItemStack item) {
-        StringBuffer str = new StringBuffer(ChatColor.GREEN + " [");
-        str.append(ChatColor.BOLD).append(item.getType().getKey().getKey()).append(ChatColor.RESET)
-                .append(ChatColor.GREEN + "] ").append(ChatColor.RESET);
+        StringBuffer str = new StringBuffer(ChatColor.GREEN.toString());
+        str.append(" [").append(ChatColor.BOLD).append(item.getType().getKey().getKey()).append(ChatColor.RESET)
+                .append(ChatColor.GREEN).append("] ").append(ChatColor.RESET);
         return str.toString();
     }
 
@@ -466,9 +482,9 @@ public class BingoGame {
 
     private String formatTitle(String title) {
         StringBuffer str = new StringBuffer("");
-        str.append(ChatColor.MAGIC + "aaa" + ChatColor.RESET)
-                .append(ChatColor.GOLD + " " + title + " " + ChatColor.RESET)
-                .append(ChatColor.MAGIC + "aaa" + ChatColor.RESET);
+        str.append(ChatColor.MAGIC).append("aaa").append(ChatColor.RESET).append(ChatColor.GOLD).append(" ")
+                .append(title).append(" ").append(ChatColor.RESET).append(ChatColor.MAGIC).append("aaa")
+                .append(ChatColor.RESET);
         return str.toString();
     }
 }
