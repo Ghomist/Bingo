@@ -1,6 +1,7 @@
 # folders
 /target/
 /.vscode/
+/.settings/
 
 # files
 *.jar
