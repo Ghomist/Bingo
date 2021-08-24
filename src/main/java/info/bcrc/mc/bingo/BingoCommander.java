@@ -27,7 +27,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                     switch (args[0]) {
                         case "setup":
                             if (args.length >= 1 && args.length <= 3
-                                    && plugin.bingoGame.getGameState().equals(BingoGameState.END)) {
+                                    && !plugin.bingoGame.getGameState().equals(BingoGameState.START)) {
                                 boolean allcollect = false;
                                 if (Arrays.asList(args).contains("allcollect"))
                                     allcollect = true;
@@ -35,9 +35,6 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
                                 boolean shareInventory = false;
                                 if (Arrays.asList(args).contains("shareinventory"))
                                     shareInventory = true;
-                                if (shareInventory) {
-                                    plugin.logger.info("allcollect");
-                                }
 
                                 plugin.bingoGame = new BingoGame(plugin, allcollect, shareInventory);
                             } else {
@@ -111,7 +108,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
             if (args.length > 1) {
                 switch (args[0]) {
                     case "setup":
-                        if (args.length < 3)
+                        if (args.length <= 3)
                             return Arrays.asList("allcollect", "shareinventory");
                     case "join":
                         if (args.length == 2)
