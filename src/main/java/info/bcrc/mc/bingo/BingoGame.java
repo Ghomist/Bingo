@@ -252,7 +252,8 @@ public class BingoGame {
         if (shareInventory) {
             for (BingoPlayer p : players) {
                 p.bingoMap.playerGetItem(player, item, bPlayer.team);
-                p.score.setScore(p.score.getScore() + 1);
+                if (p.isInTeam(bPlayer.team))
+                    p.score.setScore(p.score.getScore() + 1);
             }
         } else {
             for (BingoPlayer p : players) {
