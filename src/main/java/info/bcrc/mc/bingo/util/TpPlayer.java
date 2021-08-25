@@ -15,6 +15,7 @@ public class TpPlayer {
         int y;
         int z;
         Location destination = player.getLocation();
+        String biome;
         do {
             x = (int) (Math.random() * range - range / 2);
             z = (int) (Math.random() * range - range / 2);
@@ -22,7 +23,10 @@ public class TpPlayer {
             destination.setX(x);
             destination.setY(y);
             destination.setZ(z);
-        } while (destination.getBlock().getBiome().name().contains("OCEAN") || y < world.getSeaLevel() - 5);
+
+            biome = destination.getBlock().getBiome().name();
+        } while (biome.contains("OCEAN") || biome.contains("ICE_SPIKES") || biome.contains("DESERT")
+                || biome.contains("BADLANDS") || biome.contains("MUSHROOM_FIELDS") || y < world.getSeaLevel() - 5);
 
         if (world.getBlockAt(x, y, z).isLiquid())
             world.getBlockAt(x, y, z).setType(Material.DIRT);
