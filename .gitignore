@@ -8,5 +8,7 @@
 *.py
 *.txt
 
+# to keep your own pom.xml setting, do not git push the pom.xml!
+
 # unfishied file
 # *.md
