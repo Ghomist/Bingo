@@ -1,6 +1,7 @@
 package info.bcrc.mc.bingo;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -86,6 +87,12 @@ public class BingoGame {
             this.bingoMap = bingoMap;
             this.score = score;
             score.setScore(0);
+
+            if (teamPlayerCount.containsKey(team)) {
+                teamPlayerCount.replace(team, teamPlayerCount.get(team) + 1);
+            } else {
+                teamPlayerCount.put(team, 1);
+            }
         }
 
         boolean is(UUID uuid) {
@@ -135,6 +142,13 @@ public class BingoGame {
             String formerTeam = getBingoPlayer(player.getUniqueId()).team;
             players.remove(getBingoPlayer(player.getUniqueId()));
             scoreboard.resetScores(ChatColor.valueOf(formerTeam.toUpperCase()) + player.getName());
+            if (teamPlayerCount.containsKey(formerTeam)) {
+                if (teamPlayerCount.get(formerTeam) > 1) {
+                    teamPlayerCount.replace(formerTeam, teamPlayerCount.get(formerTeam) - 1);
+                } else {
+                    teamPlayerCount.remove(formerTeam);
+                }
+            }
         }
         // create new player data
         Inventory newInventory = Bukkit.createInventory(player, 45, player.getName() + "'s Bingo Map");
@@ -284,7 +298,7 @@ public class BingoGame {
                 return;
             }
 
-            if (collectAll && shareInventory && bPlayer.bingoMap.testAllCollected(players.size()))
+            if (collectAll && shareInventory && bPlayer.bingoMap.testAllCollected(teamPlayerCount.size()))
                 playerFinishBingo(player, false);
 
             if (!collectAll && bPlayer.bingoMap.testCross(index))
@@ -440,6 +454,8 @@ public class BingoGame {
     private BingoMapCreator bingoMapCreator;
 
     private HashSet<BingoPlayer> players = new HashSet<>();
+    private int teamCount = 0;
+    private HashMap<String, Integer> teamPlayerCount = new HashMap<>();
 
     private Scoreboard scoreboard;
 
@@ -489,4 +505,5 @@ public class BingoGame {
                 .append(ChatColor.RESET);
         return str.toString();
     }
+
 }
