@@ -22,7 +22,7 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         try {
-            if (command.getName().equalsIgnoreCase("bingo") && sender.hasPermission("bingo.perm")) {
+            if (command.getName().equalsIgnoreCase("bingo") && sender.hasPermission("bingo.default")) {
                 if (args.length >= 1) {
                     switch (args[0]) {
                         case "setup":

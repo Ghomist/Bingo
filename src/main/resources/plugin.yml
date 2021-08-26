@@ -8,7 +8,7 @@ commands:
   bingo:
     description: control bingo
     usage: |
-      [Bingo Commands]
+      [Bingo Commands Usage]
       /bingo [setup|join|start|shutdown|playerlist]
       /bingo show information about this plugin
       /bingo setup [allcollect|shareinventory]: start a bingo in input mode(s)
@@ -19,9 +19,9 @@ commands:
       /bingo help: show help
       /bingo check: check others' bingo map
       /bingo up: teleport the player up to the ground
-    permission: bingo.perm
-    permission-message: You don't have <bingo.perm>
+    permission: bingo.default
+    permission-message: You don't have <bingo.default>
 permissions:
-  bingo.perm:
+  bingo.default:
     description: Default permission in bingo plugin.
     default: true
