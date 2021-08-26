@@ -19,5 +19,9 @@ commands:
       /bingo help: show help
       /bingo check: check others' bingo map
       /bingo up: teleport the player up to the ground
-    permission: project.permission
-    permission-message: You don't have <project.permission>
+    permission: bingo.perm
+    permission-message: You don't have <bingo.perm>
+permissions:
+  bingo.perm:
+    description: Default permission in bingo plugin.
+    default: true
