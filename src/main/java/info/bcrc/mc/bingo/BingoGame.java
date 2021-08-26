@@ -306,11 +306,12 @@ public class BingoGame {
                     if (p != null)
                         printPlayerList(p);
                 });
-                Bukkit.getScheduler().cancelTask(timeCounter.getTaskId());
             } else {
                 // shutdown by player
                 msg = announcer + ChatColor.RED + "The game had been shut up forcibly by " + formatPlayerName(player);
             }
+            if (gameState.equals(BingoGameState.START))
+                Bukkit.getScheduler().cancelTask(timeCounter.getTaskId());
             // info
             messageAll(msg);
             System.out.println(msg);
