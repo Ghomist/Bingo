@@ -454,7 +454,6 @@ public class BingoGame {
     private BingoMapCreator bingoMapCreator;
 
     private HashSet<BingoPlayer> players = new HashSet<>();
-    private int teamCount = 0;
     private HashMap<String, Integer> teamPlayerCount = new HashMap<>();
 
     private Scoreboard scoreboard;
