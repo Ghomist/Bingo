@@ -127,7 +127,7 @@ public class BingoGame {
         plugin.getServer().getOnlinePlayers()
                 .forEach(p -> p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1f, 1f));
 
-        System.out.println(announcer + "A bingo game has been set up");
+        Bukkit.getLogger().info(announcer + "A bingo game has been set up");
 
         gameState = BingoGameState.SETUP;
 
@@ -168,7 +168,7 @@ public class BingoGame {
         player.playSound(player.getLocation(), Sound.BLOCK_ANVIL_USE, 0.8f, 1f);
         String msg = announcer + formatPlayerName(player) + "has joined as " + team + " team";
         messageAll(msg);
-        System.out.println(msg);
+        Bukkit.getLogger().info(msg);
         printPlayerList(player);
         player.setScoreboard(scoreboard);
     }
@@ -228,7 +228,7 @@ public class BingoGame {
         // remove all the advancements
         sponsor.getServer().dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke @a everything");
 
-        System.out.println(announcer + "The game has been started by " + formatPlayerName(sponsor));
+        Bukkit.getLogger().info(announcer + "The game has been started by " + formatPlayerName(sponsor));
 
         timeCounter = Bukkit.getScheduler().runTaskTimer(plugin, new Runnable() {
             @Override
@@ -287,7 +287,7 @@ public class BingoGame {
                 p.playSound(p.getLocation(), Sound.ENTITY_FIREWORK_ROCKET_LAUNCH, 1f, 1f);
             }
         });
-        System.out.println(msg);
+        Bukkit.getLogger().info(msg);
 
         // hand in one item in need
         item.setAmount(item.getAmount() - 1);
@@ -328,7 +328,7 @@ public class BingoGame {
                 Bukkit.getScheduler().cancelTask(timeCounter.getTaskId());
             // info
             messageAll(msg);
-            System.out.println(msg);
+            Bukkit.getLogger().info(msg);
 
             // stop game
             gameState = BingoGameState.END;
@@ -396,7 +396,7 @@ public class BingoGame {
                         gameState = BingoGameState.END;
                     }
                 });
-                System.out.println(msg);
+                Bukkit.getLogger().info(msg);
             }
         }
     }
@@ -407,12 +407,12 @@ public class BingoGame {
 
     protected void printPlayerList(CommandSender sender) {
         sender.sendMessage(announcer + "Player list:");
-        System.out.println(announcer + "Player list:");
+        Bukkit.getLogger().info(announcer + "Player list:");
         for (BingoPlayer p : players) {
             if (Bukkit.getPlayer(p.uuid) != null) {
                 sender.sendMessage(ChatColor.valueOf(p.team.toUpperCase()) + " - " + Bukkit.getPlayer(p.uuid).getName()
                         + " (" + p.score.getScore() + ")");
-                System.out.println(p.team.toUpperCase() + " - " + Bukkit.getPlayer(p.uuid).getName() + " ("
+                Bukkit.getLogger().info(p.team.toUpperCase() + " - " + Bukkit.getPlayer(p.uuid).getName() + " ("
                         + p.score.getScore() + ")");
             }
         }
