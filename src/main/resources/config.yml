@@ -1,20 +1,34 @@
 # a list of all allowed items
 item-list:
-  length: 40
-  1: # cocoa
+  length: 39
+  1: # jungle
+    - JUNGLE_SAPLING
+    - JUNGLE_LOG
+    - JUNGLE_WOOD
+    - STRIPPED_JUNGLE_LOG
+    - STRIPPED_JUNGLE_WOOD
+    - JUNGLE_LEAVES
+    - JUNGLE_SLAB
+    - JUNGLE_FENCE
+    - JUNGLE_STAIRS
+    - JUNGLE_DOOR
+    - JUNGLE_TRAPDOOR
+    - JUNGLE_FENCE_GATE
+    - JUNGLE_BOAT
+    - JUNGLE_SIGN
+    # jungle-natural
     - COCOA_BEANS
     - COOKIE
-  2: # melon
     - MELON_SEEDS
     - MELON_SLICE
     - MELON
+    - BAMBOO
   3: # natural
     - LILY_PAD
     - VINE
     - FERN
     - GRASS
     - DEAD_BUSH
-    - BAMBOO
     - SWEET_BERRIES
     - CACTUS
   4: # pumpkin
@@ -321,7 +335,6 @@ item-list:
     - RABBIT_STEW
     - RABBIT_FOOT
     - RABBIT_HIDE
-    - EGG
     - HONEY_BOTTLE
   22: # leather
     - LEATHER
@@ -410,7 +423,6 @@ item-list:
     - MILK_BUCKET
     - WATER_BUCKET
     - LAVA_BUCKET
-    - POWDER_SNOW_BUCKET
   31: # ocean
     - KELP
     - DRIED_KELP
@@ -419,7 +431,6 @@ item-list:
     - SEA_PICKLE
   32: # ground
     - GLASS_BOTTLE
-    - POTION
     - GRAVEL
     - FLINT
     - DRIPSTONE_BLOCK
@@ -446,7 +457,6 @@ item-list:
     - OAK_SAPLING
     - SPRUCE_SAPLING
     - BIRCH_SAPLING
-    - JUNGLE_SAPLING
     - ACACIA_SAPLING
     - DARK_OAK_SAPLING
   35: # wood
@@ -454,35 +464,30 @@ item-list:
     - OAK_LOG
     - SPRUCE_LOG
     - BIRCH_LOG
-    - JUNGLE_LOG
     - ACACIA_LOG
     - DARK_OAK_LOG
     # wood
     - OAK_WOOD
     - SPRUCE_WOOD
     - BIRCH_WOOD
-    - JUNGLE_WOOD
     - ACACIA_WOOD
     - DARK_OAK_WOOD
     # stripped log
     - STRIPPED_OAK_LOG
     - STRIPPED_SPRUCE_LOG
     - STRIPPED_BIRCH_LOG
-    - STRIPPED_JUNGLE_LOG
     - STRIPPED_ACACIA_LOG
     - STRIPPED_DARK_OAK_LOG
     # stripped wood
     - STRIPPED_OAK_WOOD
     - STRIPPED_SPRUCE_WOOD
     - STRIPPED_BIRCH_WOOD
-    - STRIPPED_JUNGLE_WOOD
     - STRIPPED_ACACIA_WOOD
     - STRIPPED_DARK_OAK_WOOD
     # leaves
     - OAK_LEAVES
     - SPRUCE_LEAVES
     - BIRCH_LEAVES
-    - JUNGLE_LEAVES
     - ACACIA_LEAVES
     - DARK_OAK_LEAVES
   36: # wood craft
@@ -490,56 +495,48 @@ item-list:
     - OAK_SLAB
     - SPRUCE_SLAB
     - BIRCH_SLAB
-    - JUNGLE_SLAB
     - ACACIA_SLAB
     - DARK_OAK_SLAB
     # fence
     - OAK_FENCE
     - SPRUCE_FENCE
     - BIRCH_FENCE
-    - JUNGLE_FENCE
     - ACACIA_FENCE
     - DARK_OAK_FENCE
     # stairs
     - OAK_STAIRS
     - SPRUCE_STAIRS
     - BIRCH_STAIRS
-    - JUNGLE_STAIRS
     - ACACIA_STAIRS
     - DARK_OAK_STAIRS
     # door
     - OAK_DOOR
     - SPRUCE_DOOR
     - BIRCH_DOOR
-    - JUNGLE_DOOR
     - ACACIA_DOOR
     - DARK_OAK_DOOR
     # trapdoor
     - OAK_TRAPDOOR
     - SPRUCE_TRAPDOOR
     - BIRCH_TRAPDOOR
-    - JUNGLE_TRAPDOOR
     - ACACIA_TRAPDOOR
     - DARK_OAK_TRAPDOOR
     # fence gate
     - OAK_FENCE_GATE
     - SPRUCE_FENCE_GATE
     - BIRCH_FENCE_GATE
-    - JUNGLE_FENCE_GATE
     - ACACIA_FENCE_GATE
     - DARK_OAK_FENCE_GATE
     # boat
     - OAK_BOAT
     - SPRUCE_BOAT
     - BIRCH_BOAT
-    - JUNGLE_BOAT
     - ACACIA_BOAT
     - DARK_OAK_BOAT
     # sign
     - OAK_SIGN
     - SPRUCE_SIGN
     - BIRCH_SIGN
-    - JUNGLE_SIGN
     - ACACIA_SIGN
     - DARK_OAK_SIGN
   37: # snow
