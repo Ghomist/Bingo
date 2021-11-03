@@ -134,5 +134,4 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
     }
 
     private Bingo plugin;
-
 }

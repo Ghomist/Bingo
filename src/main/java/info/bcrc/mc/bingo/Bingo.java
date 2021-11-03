@@ -37,11 +37,11 @@ public class Bingo extends JavaPlugin {
 
         bingoGame = new BingoGame(this, false, false);
         bingoGame.setGameState(BingoGameState.END);
-
     }
 
     @Override
     public void onDisable() {
+        this.bingoGame.playerFinishBingo(null, true);
     }
 
     public ConfigHandler getConfigHandler() {
