@@ -25,66 +25,69 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
             if (command.getName().equalsIgnoreCase("bingo") && sender.hasPermission("bingo.default")) {
                 if (args.length >= 1) {
                     switch (args[0]) {
-                        case "setup":
-                            if (args.length >= 1 && args.length <= 3
-                                    && !plugin.bingoGame.getGameState().equals(BingoGameState.START)) {
-                                boolean allcollect = false;
-                                if (Arrays.asList(args).contains("allcollect"))
-                                    allcollect = true;
+                    case "setup":
+                        if (args.length >= 1 && args.length <= 3
+                                && !plugin.bingoGame.getGameState().equals(BingoGameState.START)) {
+                            boolean allcollect = false;
+                            if (Arrays.asList(args).contains("allcollect"))
+                                allcollect = true;
 
-                                boolean shareInventory = false;
-                                if (Arrays.asList(args).contains("shareinventory"))
-                                    shareInventory = true;
+                            boolean shareInventory = false;
+                            if (Arrays.asList(args).contains("shareinventory"))
+                                shareInventory = true;
 
-                                plugin.bingoGame = new BingoGame(plugin, allcollect, shareInventory);
-                            } else {
-                                badInput(sender);
-                            }
-                            break;
-
-                        case "join":
-                            if (args.length == 2 && allTeams.contains(args[1]))
-                                plugin.bingoGame.playerJoin((Player) sender, args[1]);
-                            else
-                                badInput(sender);
-                            break;
-
-                        case "start":
-                            plugin.bingoGame.startGame(plugin, (Player) sender);
-                            break;
-
-                        case "shutdown":
-                            plugin.bingoGame.playerFinishBingo((Player) sender, true);
-                            break;
-
-                        case "playerlist":
-                            plugin.bingoGame.printPlayerList(sender);
-                            break;
-
-                        case "help":
-                            sender.sendMessage(plugin.configHandler.returnBingoCommandUsage());
-                            break;
-
-                        case "check":
-                            if (args.length == 2) {
-                                if (plugin.bingoGame.getGameState().equals(BingoGameState.START)
-                                        || plugin.bingoGame.getGameState().equals(BingoGameState.END)) {
-                                    Player sponsor = (Player) sender;
-                                    sponsor.openInventory(plugin.bingoGame.getBingoMap(plugin.server.getPlayer(args[1]))
-                                            .getInventory());
-                                }
-                            } else {
-                                badInput(sender);
-                            }
-                            break;
-
-                        case "up":
-                            TpPlayer.tpPlayerToGround((Player) sender);
-                            break;
-
-                        default:
+                            plugin.bingoGame = new BingoGame(plugin, allcollect, shareInventory);
+                        } else {
                             badInput(sender);
-                            break;
+                        }
+                        break;
+
+                    case "join":
+                        if (args.length <= 3 && allTeams.contains(args[1])) {
+                            if (args.length == 3 && args[2].equalsIgnoreCase("be"))
+                                plugin.bingoGame.playerJoin((Player) sender, args[1], true);
+                            else
+                                plugin.bingoGame.playerJoin((Player) sender, args[1], false);
+                        } else
+                            badInput(sender);
+                        break;
+
+                    case "start":
+                        plugin.bingoGame.startGame(plugin, (Player) sender);
+                        break;
+
+                    case "shutdown":
+                        plugin.bingoGame.playerFinishBingo((Player) sender, true);
+                        break;
+
+                    case "playerlist":
+                        plugin.bingoGame.printPlayerList(sender);
+                        break;
+
+                    case "help":
+                        sender.sendMessage(plugin.configHandler.returnBingoCommandUsage());
+                        break;
+
+                    case "check":
+                        if (args.length == 2) {
+                            if (plugin.bingoGame.getGameState().equals(BingoGameState.START)
+                                    || plugin.bingoGame.getGameState().equals(BingoGameState.END)) {
+                                Player sponsor = (Player) sender;
+                                sponsor.openInventory(plugin.bingoGame.getBingoMap(plugin.server.getPlayer(args[1]))
+                                        .getInventory(plugin.bingoGame.isBePlayer(sponsor)));
+                            }
+                        } else {
+                            badInput(sender);
+                        }
+                        break;
+
+                    case "up":
+                        TpPlayer.tpPlayerToGround((Player) sender);
+                        break;
+
+                    default:
+                        badInput(sender);
+                        break;
                     }
                 } else {
                     sender.sendMessage(plugin.configHandler.returnBingoInfo());
@@ -107,16 +110,20 @@ public class BingoCommander implements CommandExecutor, TabCompleter {
         if (command.getName().equalsIgnoreCase("bingo") && args.length > 0) {
             if (args.length > 1) {
                 switch (args[0]) {
-                    case "setup":
-                        if (args.length <= 3)
-                            return Arrays.asList("allcollect", "shareinventory");
-                    case "join":
-                        if (args.length == 2)
-                            return allTeams;
-                    case "start":
-                        return null;
-                    default:
-                        return null;
+                case "setup":
+                    if (args.length <= 3)
+                        return Arrays.asList("allcollect", "shareinventory");
+                    break;
+                case "join":
+                    if (args.length == 2)
+                        return allTeams;
+                    if (args.length == 3)
+                        return Arrays.asList("be");
+                    break;
+                case "start":
+                    return null;
+                default:
+                    return null;
                 }
             } else {
                 return baseCommands;

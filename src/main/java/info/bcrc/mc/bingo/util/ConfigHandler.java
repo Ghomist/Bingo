@@ -49,5 +49,4 @@ public class ConfigHandler {
 
     private String bingoInfo = "";
     private String commandUsage = "";
-
 }

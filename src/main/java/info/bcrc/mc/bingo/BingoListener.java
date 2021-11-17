@@ -36,7 +36,7 @@ public class BingoListener implements Listener {
     @EventHandler // (priority = EventPriority.HIGH)
     public void onInventoryClickEvent(InventoryClickEvent event) {
         if (event.getCurrentItem() != null)
-            if (plugin.bingoGame.isBingoMap(event.getInventory())
+            if (plugin.bingoGame.isBingoMap((Player) event.getWhoClicked(), event.getInventory())
                     || (event.getCurrentItem().getType().equals(Material.NETHER_STAR)
                             && plugin.bingoGame.getGameState().equals(BingoGameState.START)))
                 event.setCancelled(true);
@@ -52,8 +52,12 @@ public class BingoListener implements Listener {
 
     @EventHandler
     public void onInventoryMoveItemEvent(InventoryMoveItemEvent event) {
-        if (plugin.bingoGame.isBingoMap(event.getDestination()))
-            event.setCancelled(true);
+        try {
+            if (plugin.bingoGame.isBingoMap((Player) event.getDestination().getHolder(), event.getDestination()))
+                event.setCancelled(true);
+        } catch (Exception e) {
+            plugin.logger.info(e.toString());
+        }
     }
 
     @EventHandler
@@ -62,8 +66,10 @@ public class BingoListener implements Listener {
         if (item != null && plugin.bingoGame.getGameState().equals(BingoGameState.START)
                 && item.getType().equals(Material.NETHER_STAR)) {
             event.setCancelled(true);
-            event.getPlayer().openInventory(plugin.bingoGame.getBingoMap(event.getPlayer()).getInventory());
-            event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+            Player player = event.getPlayer();
+            player.openInventory(
+                    plugin.bingoGame.getBingoMap(player).getInventory(plugin.bingoGame.isBePlayer(player)));
+            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
         }
     }
 
@@ -77,14 +83,15 @@ public class BingoListener implements Listener {
     public void onPlayerDropItemEvent(PlayerDropItemEvent event) {
         ItemStack item = event.getItemDrop().getItemStack();
 
+        Player player = event.getPlayer();
         if (item.getType().equals(Material.NETHER_STAR)) {
-            event.getPlayer().openInventory(plugin.bingoGame.getBingoMap(event.getPlayer()).getInventory());
-            event.getPlayer().playSound(event.getPlayer().getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
+            player.openInventory(
+                    plugin.bingoGame.getBingoMap(player).getInventory(plugin.bingoGame.isBePlayer(player)));
+            player.playSound(player.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, 1f);
             event.setCancelled(true);
             return;
         }
         // try to achieve bingo
-        Player player = event.getPlayer();
         plugin.bingoGame.playerGetItem(player, item);
     }
 
@@ -103,6 +110,7 @@ public class BingoListener implements Listener {
         if (plugin.bingoGame.isBingoPlayer(player)) {
             Bukkit.getScheduler().scheduleSyncDelayedTask(plugin, () -> {
                 player.addPotionEffect(new PotionEffect(PotionEffectType.NIGHT_VISION, 999999, 255, false, false));
+                player.addPotionEffect(new PotionEffect(PotionEffectType.WATER_BREATHING, 999999, 255, false, false));
             });
         }
     }

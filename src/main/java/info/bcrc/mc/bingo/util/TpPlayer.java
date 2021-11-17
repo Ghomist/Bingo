@@ -23,7 +23,6 @@ public class TpPlayer {
             destination.setX(x);
             destination.setY(y);
             destination.setZ(z);
-
             biome = destination.getBlock().getBiome().name();
         } while (biome.contains("OCEAN") || biome.contains("ICE_SPIKES") || biome.contains("DESERT")
                 || biome.contains("BADLANDS") || biome.contains("MUSHROOM_FIELDS") || y < world.getSeaLevel() - 5);

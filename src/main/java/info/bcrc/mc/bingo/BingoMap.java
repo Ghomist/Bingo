@@ -1,5 +1,6 @@
 package info.bcrc.mc.bingo;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
@@ -11,7 +12,11 @@ import net.md_5.bungee.api.ChatColor;
 public class BingoMap {
 
     protected BingoMap(Player owner, Inventory inventory) {
+        this.owner = owner;
         this.inventory = inventory;
+        // make a be inventory
+        this.beInventory = Bukkit.createInventory(owner, 36, owner.getName() + "'s Bingo Map");
+        updateBeInventory();
     }
 
     protected void playerGetItem(Player player, ItemStack item, String team) {
@@ -22,6 +27,8 @@ public class BingoMap {
 
         inventory.setItem(getIndex(item), replacement);
         collectedCount++;
+
+        updateBeInventory();
     }
 
     protected boolean testCross(int index) {
@@ -80,11 +87,26 @@ public class BingoMap {
         return -1;
     }
 
-    protected Inventory getInventory() {
-        return inventory;
+    protected Inventory getInventory(boolean beview) {
+        if (beview) {
+            updateBeInventory();
+            return beInventory;
+        } else
+            return inventory;
+    }
+
+    private void updateBeInventory() {
+        for (int i = 0; i < 30; i++) {
+            if (i % 6 == 5) {
+                beInventory.setItem(i, new ItemStack(Material.AIR));
+                continue;
+            }
+            beInventory.setItem(i, this.inventory.getItem(i / 6 * 9 + i % 6 + 2));
+        }
     }
 
     private Inventory inventory;
+    private Inventory beInventory;
     private int collectedCount = 0;
-
+    private Player owner;
 }

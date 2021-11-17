@@ -11,6 +11,7 @@ import org.bukkit.GameMode;
 import org.bukkit.GameRule;
 import org.bukkit.Material;
 import org.bukkit.Sound;
+import org.bukkit.World;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -80,11 +81,13 @@ public class BingoGame {
         BingoMap bingoMap;
         Score score;
         boolean hasFinishedBingo = false;
+        boolean bePlayer = false;
 
-        public BingoPlayer(UUID uuid, BingoMap bingoMap, String team, Score score) {
+        public BingoPlayer(UUID uuid, BingoMap bingoMap, String team, boolean bePlayer, Score score) {
             this.uuid = uuid;
             this.team = team;
             this.bingoMap = bingoMap;
+            this.bePlayer = bePlayer;
             this.score = score;
             score.setScore(0);
 
@@ -133,7 +136,7 @@ public class BingoGame {
 
     }
 
-    protected void playerJoin(Player player, String team) {
+    protected void playerJoin(Player player, String team, boolean bePlayer) {
         if (!gameState.equals(BingoGameState.SETUP))
             return;
 
@@ -156,7 +159,7 @@ public class BingoGame {
         for (int i = 0; i < 45; i++) {
             newInventory.setItem(i, itemList[i]);
         }
-        players.add(new BingoPlayer(player.getUniqueId(), new BingoMap(player, newInventory), team,
+        players.add(new BingoPlayer(player.getUniqueId(), new BingoMap(player, newInventory), team, bePlayer,
                 scoreboard.getObjective("bingo").getScore(ChatColor.valueOf(team.toUpperCase()) + player.getName())));
 
         // potion effects
@@ -206,7 +209,7 @@ public class BingoGame {
             // give players boots with depth strider
             ItemStack boots = new ItemStack(Material.LEATHER_BOOTS);
             boots.addUnsafeEnchantment(Enchantment.DEPTH_STRIDER, 3);
-            boots.addUnsafeEnchantment(Enchantment.DURABILITY, 10);
+            boots.addUnsafeEnchantment(Enchantment.DURABILITY, 5);
             p.getInventory().setBoots(boots);
 
             // random teleport
@@ -223,8 +226,10 @@ public class BingoGame {
             p.sendTitle(formatTitle("Game Start"), "Go and seek items on the map!", 10, 100, 20);
             p.sendMessage(announcer + "The game has been started");
         });
-        sponsor.getWorld().setGameRule(GameRule.KEEP_INVENTORY, true);
-        sponsor.getWorld().setTime(0);
+        World world = sponsor.getWorld();
+        world.setGameRule(GameRule.KEEP_INVENTORY, true);
+        world.setTime(0);
+        world.setClearWeatherDuration(999999);
         // remove all the advancements
         sponsor.getServer().dispatchCommand(Bukkit.getConsoleSender(), "advancement revoke @a everything");
 
@@ -426,9 +431,9 @@ public class BingoGame {
         this.gameState = gameState;
     }
 
-    protected boolean isBingoMap(Inventory inventory) {
+    protected boolean isBingoMap(Player player, Inventory inventory) {
         for (BingoPlayer p : players) {
-            if (p.bingoMap.getInventory().equals(inventory)) {
+            if (p.bingoMap.getInventory(isBePlayer(player)).equals(inventory)) {
                 return true;
             }
         }
@@ -441,6 +446,10 @@ public class BingoGame {
                 return true;
         }
         return false;
+    }
+
+    protected boolean isBePlayer(Player player) {
+        return getBingoPlayer(player.getUniqueId()).bePlayer;
     }
 
     protected Scoreboard getScoreboard() {
